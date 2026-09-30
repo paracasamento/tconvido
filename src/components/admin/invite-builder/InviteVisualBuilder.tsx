@@ -2189,6 +2189,37 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           </section>
         )}
 
+        {sharedFlowBackgroundActive&&(
+          <section className={styles.continuousPreview}>
+            <div className={styles.continuousPreviewHeader}>
+              <div>
+                <strong>Prévia do encaixe contínuo</strong>
+                <span>Mostra exatamente como o fundo atravessa Convite + Presentes.</span>
+              </div>
+              <small>Somente visualização</small>
+            </div>
+            <div className={styles.continuousPreviewCanvas} style={{width:CANVAS_W}}>
+              <InviteContinuousFlow
+                backgroundScreen={sharedBackgroundScreen}
+                sections={[
+                  {
+                    key:"invite-flow-preview",
+                    screen:inviteRuntimeScreen,
+                    vars:previewData.vars,
+                    slots:passiveInviteSlots,
+                  },
+                  {
+                    key:"gifts-flow-preview",
+                    screen:giftsPreviewScreen,
+                    vars:previewData.vars,
+                    slots:passiveGiftSlots,
+                  },
+                ]}
+              />
+            </div>
+          </section>
+        )}
+
         <div className={styles.stageStatusBar}>
           <span>{CANVAS_W}×{CANVAS_H}</span>
           <span>Zoom {Math.round(zoom*100)}%</span>
