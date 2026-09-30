@@ -14,6 +14,8 @@ import {
 } from "@/lib/sessions";
 import { giftImageUrl } from "@/lib/storage";
 
+export const dynamic = "force-dynamic";
+
 function compactTime(time: string) {
   return time.replace(/:00$/, "");
 }
