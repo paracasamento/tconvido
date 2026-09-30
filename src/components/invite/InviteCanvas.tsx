@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { InviteElement, InviteScreen } from "@/lib/invite-builder";
+import { inviteScreenBackgroundStyle } from "@/lib/invite-background-style";
 import {
   buildScreenScopedCss,
   elementStyleFromConfig,
@@ -17,19 +18,6 @@ function resolveText(
   );
 }
 
-export function inviteScreenBackgroundStyle(screen: InviteScreen): React.CSSProperties {
-  return {
-    backgroundColor: screen.backgroundColor,
-    backgroundImage: screen.useGradient
-      ? `linear-gradient(${screen.gradientAngle ?? 180}deg, ${screen.gradientFrom || "#fff"}, ${screen.gradientTo || "#eee"})`
-      : screen.backgroundImage
-        ? `url("${screen.backgroundImage}")`
-        : undefined,
-    backgroundSize: screen.backgroundSize || "cover",
-    backgroundRepeat: screen.backgroundRepeat || "no-repeat",
-    backgroundPosition: `${screen.backgroundPositionX ?? 50}% ${screen.backgroundPositionY ?? 50}%`,
-  };
-}
 
 export function InviteCanvas({
   screen,
