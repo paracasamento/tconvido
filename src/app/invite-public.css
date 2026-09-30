@@ -2927,3 +2927,29 @@
     grid-column: auto;
   }
 }
+
+
+/* Estados discretos dos cards de presente */
+.gift-state-indicator{
+  pointer-events:none;
+}
+[data-gift-status="reserved"]{
+  cursor:default!important;
+}
+[data-gift-status="reserved_by_me"]{
+  outline:0;
+}
+[data-gift-status="available"]:focus-visible,
+[data-gift-status="reserved_by_me"]:focus-visible{
+  outline:2px solid rgba(18,48,142,.55);
+  outline-offset:3px;
+}
+
+.guest-action-modal-button--danger{
+  border:1px solid rgba(145,72,62,.34);
+  background:#fff8f6;
+  color:#934b43;
+}
+.guest-action-modal-button--danger:hover{
+  background:#fbecea;
+}
