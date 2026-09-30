@@ -6,6 +6,7 @@ import {
   type InviteScreen,
   type InviteScreenId,
   type InviteVisualConfig,
+  type InviteFlowSettings,
 } from "@/lib/invite-builder";
 import type { EventRecord } from "@/lib/event";
 
@@ -49,7 +50,12 @@ function rowToEvent(row: any): EventRecord {
 export async function getPublicInvitePageData(
   screenId: InviteScreenId,
   eventId?: string
-): Promise<{ event: EventRecord; screen: InviteScreen; config?: InviteVisualConfig } | null> {
+): Promise<{
+  event: EventRecord;
+  screen: InviteScreen;
+  config?: InviteVisualConfig;
+  inviteFlow?: InviteFlowSettings;
+} | null> {
   const sql = db();
 
   // Keep one DB roundtrip. We intentionally fetch only the selected screen out
@@ -72,6 +78,7 @@ export async function getPublicInvitePageData(
           COALESCE(e.gift_color_preferences, '[]'::jsonb) AS gift_color_preferences,
           e.status,
           d.config->'screens'->${screenId} AS visual_screen,
+          d.config->'inviteFlow' AS invite_flow,
           CASE WHEN ${screenId} = 'rsvp'
             THEN d.config->'rsvpScenarios'
             ELSE NULL
@@ -97,6 +104,7 @@ export async function getPublicInvitePageData(
           COALESCE(e.gift_color_preferences, '[]'::jsonb) AS gift_color_preferences,
           e.status,
           d.config->'screens'->${screenId} AS visual_screen,
+          d.config->'inviteFlow' AS invite_flow,
           CASE WHEN ${screenId} = 'rsvp'
             THEN d.config->'rsvpScenarios'
             ELSE NULL
@@ -139,5 +147,11 @@ export async function getPublicInvitePageData(
     };
   }
 
-  return { event: rowToEvent(row), screen };
+  const rawFlow = row.invite_flow as InviteFlowSettings | null | undefined;
+  const inviteFlow: InviteFlowSettings = {
+    continuousBackground: rawFlow?.continuousBackground === true,
+    backgroundSource: rawFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+  };
+
+  return { event: rowToEvent(row), screen, inviteFlow };
 }
