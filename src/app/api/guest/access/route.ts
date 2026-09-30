@@ -70,9 +70,59 @@ export async function POST(request: Request) {
     `;
 
     if (guestMatches.length !== 1) {
+      const submittedName = parsed.data.name.replace(/\\s+/g, " ").trim();
+
+      await sql`
+        INSERT INTO guest_access_attempts (
+          event_id,
+          submitted_name,
+          normalized_name,
+          attempt_count,
+          status,
+          first_attempt_at,
+          last_attempt_at,
+          updated_at
+        )
+        VALUES (
+          ${event.id},
+          ${submittedName},
+          ${normalized},
+          1,
+          'pending',
+          now(),
+          now(),
+          now()
+        )
+        ON CONFLICT (event_id, normalized_name)
+        DO UPDATE SET
+          submitted_name = EXCLUDED.submitted_name,
+          attempt_count = guest_access_attempts.attempt_count + 1,
+          last_attempt_at = now(),
+          updated_at = now(),
+          status = CASE
+            WHEN guest_access_attempts.status = 'added' THEN 'pending'
+            ELSE guest_access_attempts.status
+          END,
+          guest_id = CASE
+            WHEN guest_access_attempts.status = 'added' THEN NULL
+            ELSE guest_access_attempts.guest_id
+          END,
+          resolved_at = CASE
+            WHEN guest_access_attempts.status = 'added' THEN NULL
+            ELSE guest_access_attempts.resolved_at
+          END,
+          resolved_by = CASE
+            WHEN guest_access_attempts.status = 'added' THEN NULL
+            ELSE guest_access_attempts.resolved_by
+          END
+      `;
+
       await recordFailure(request, event.id, "guest_access_failed");
       return NextResponse.json(
-        { message: "Nome não encontrado na lista de convidados." },
+        {
+          message:
+            "No momento não foi possível acessar. Tente novamente em alguns instantes. Se o erro persistir, entre em contato com a noiva."
+        },
         { status: 401 }
       );
     }
