@@ -1503,3 +1503,28 @@
   margin:0!important;
   box-shadow:none!important;
 }
+
+
+/* Propriedades v4 — sem badges de herança/personalização */
+.propertyHeader{
+  min-height:18px;
+  gap:5px;
+}
+.propertyActions{
+  gap:3px;
+}
+.propertyState,
+.propertyStateInherited,
+.propertyStateCustom,
+.propertyStateNone{
+  display:none!important;
+}
+.propertyResetButton,
+.propertyNoneButton{
+  min-width:21px;
+  width:21px;
+  min-height:21px;
+  height:21px;
+  padding:0;
+  border-radius:6px;
+}
