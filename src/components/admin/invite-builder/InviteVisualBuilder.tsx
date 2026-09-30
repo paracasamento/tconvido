@@ -1703,8 +1703,6 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
 
 
-  const screenBg:any={backgroundColor:displayScreen.backgroundColor,backgroundImage:displayScreen.useGradient?`linear-gradient(${displayScreen.gradientAngle??180}deg,${displayScreen.gradientFrom||"#fff"},${displayScreen.gradientTo||"#eee"})`:displayScreen.backgroundImage?`url("${displayScreen.backgroundImage}")`:undefined,backgroundSize:displayScreen.backgroundSize||"cover",backgroundRepeat:displayScreen.backgroundRepeat||"no-repeat",backgroundPosition:`${displayScreen.backgroundPositionX??50}% ${displayScreen.backgroundPositionY??50}%`};
-
   const rulerX=Array.from({length:Math.floor(CANVAS_W/10)+1},(_,i)=>i*10);
   const rulerY=Array.from({length:Math.floor(CANVAS_H/10)+1},(_,i)=>i*10);
   const selectedPx=selected?{
@@ -2095,7 +2093,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
               ref={canvasRef}
               data-builder-screen={displayScreen.id}
               className={styles.canvas}
-              style={{...screenBg,...canvasGridStyle,width:CANVAS_W,aspectRatio:`390 / ${displayScreen.minHeight}`}}
+              style={{...canvasGridStyle,width:CANVAS_W,aspectRatio:`390 / ${displayScreen.minHeight}`}}
               onPointerMove={e=>{const point=canvasPointerPx(e);if(point)setCursorPx(point)}}
               onPointerLeave={()=>setCursorPx(null)}
               onPointerDown={()=>{setSelectedId(null);setSelectedPart(null)}}
