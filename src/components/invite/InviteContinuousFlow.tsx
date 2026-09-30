@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
 import type { InviteScreen } from "@/lib/invite-builder";
-import {
-  InviteCanvas,
-  inviteScreenBackgroundStyle,
-} from "@/components/invite/InviteCanvas";
+import { InviteCanvas } from "@/components/invite/InviteCanvas";
+import { inviteScreenBackgroundStyle } from "@/lib/invite-background-style";
 
 function transparentScreen(screen: InviteScreen): InviteScreen {
   return {
