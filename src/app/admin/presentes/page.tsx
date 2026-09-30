@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ClipboardCheck } from "lucide-react";
 import { AdminGiftCreate } from "@/components/AdminGiftCreate";
 import { AdminGiftCard } from "@/components/AdminGiftCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -43,7 +45,18 @@ export default async function AdminGiftsPage() {
         description={
           `${giftRows.length} ${giftRows.length === 1 ? "item" : "itens"} · ${reservedCount} ${reservedCount === 1 ? "reservado" : "reservados"}`
         }
-        action={<AdminGiftCreate />}
+        action={
+          <div className="admin-gifts-header-actions-v1">
+            <Link
+              href="/admin/presentes/confirmacoes"
+              className="button button--ghost admin-gift-confirmations-link-v1"
+            >
+              <ClipboardCheck size={16} />
+              Confirmações
+            </Link>
+            <AdminGiftCreate />
+          </div>
+        }
       />
 
       <GiftColorPreferencesForm initialColors={colorPreferences} />
