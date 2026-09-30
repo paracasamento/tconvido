@@ -2559,7 +2559,47 @@
   }
 }
 
-@media(min-width:431px){body:has(.visual-invite-screen){background:#edeae3}.visual-invite-screen{box-shadow:0 0 50px rgba(25,24,30,.12)}}
+.visual-invite-flow{
+  position:relative;
+  width:min(100vw,430px);
+  margin:0 auto;
+  overflow:hidden;
+  background:#fbfaf5;
+}
+.visual-flow-overlay,
+.visual-flow-paper{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.visual-flow-overlay{z-index:0}
+.visual-flow-paper{
+  z-index:0;
+  background:url('/florals/floral-white-background.webp') center/cover no-repeat;
+}
+.visual-flow-sections{
+  position:relative;
+  z-index:1;
+}
+.visual-invite-flow .visual-invite-screen{
+  width:100%;
+  max-width:none;
+  margin:0;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible;
+}
+.visual-invite-flow .visual-paper,
+.visual-invite-flow .visual-screen-overlay{
+  display:none;
+}
+
+@media(min-width:431px){
+  body:has(.visual-invite-screen),
+  body:has(.visual-invite-flow){background:#edeae3}
+  .visual-invite-screen{box-shadow:0 0 50px rgba(25,24,30,.12)}
+  .visual-invite-flow{box-shadow:0 0 50px rgba(25,24,30,.12)}
+}
 
 
 
