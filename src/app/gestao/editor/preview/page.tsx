@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { GiftCard } from "@/components/GiftCard";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
+import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { AccessFormView } from "@/components/invite/functional/AccessFormView";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
@@ -97,6 +98,8 @@ function slotsFor(
 
   return slots;
 }
+
+export const dynamic = "force-dynamic";
 
 export default async function GestaoEditorPreviewPage({
   searchParams,
@@ -225,14 +228,26 @@ export default async function GestaoEditorPreviewPage({
           gap: 0,
         }}
       >
-        {screens.map((screen, index) => (
-          <InviteCanvas
-            key={`${screen.id}-${index}`}
-            screen={screen}
-            vars={previewData.vars}
-            slots={slotsFor(screen, previewData, rsvpState)}
+        {page === "invite-flow" && state === "after" && screens.length === 2 ? (
+          <InviteContinuousFlow
+            backgroundScreen={screens[0]}
+            sections={screens.map((screen, index) => ({
+              key: `${screen.id}-${index}`,
+              screen,
+              vars: previewData.vars,
+              slots: slotsFor(screen, previewData, rsvpState),
+            }))}
           />
-        ))}
+        ) : (
+          screens.map((screen, index) => (
+            <InviteCanvas
+              key={`${screen.id}-${index}`}
+              screen={screen}
+              vars={previewData.vars}
+              slots={slotsFor(screen, previewData, rsvpState)}
+            />
+          ))
+        )}
       </div>
     </main>
   );
