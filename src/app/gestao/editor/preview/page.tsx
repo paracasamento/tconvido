@@ -228,9 +228,16 @@ export default async function GestaoEditorPreviewPage({
           gap: 0,
         }}
       >
-        {page === "invite-flow" && state === "after" && screens.length === 2 ? (
+        {page === "invite-flow" &&
+        state === "after" &&
+        screens.length === 2 &&
+        config.inviteFlow?.continuousBackground === true ? (
           <InviteContinuousFlow
-            backgroundScreen={screens[0]}
+            backgroundScreen={
+              config.inviteFlow?.backgroundSource === "gifts"
+                ? screens[1]
+                : screens[0]
+            }
             sections={screens.map((screen, index) => ({
               key: `${screen.id}-${index}`,
               screen,
