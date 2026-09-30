@@ -766,10 +766,20 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
   function changeInviteFlowState(next:InviteFlowState){
     setInviteFlowState(next);
+
     if(next==="before" && inviteSection==="gifts"){
       setInviteSection("invite");
       switchScreen("invite");
+      return;
     }
+
+    if(screenId==="invite" && next==="after" && (selectedId==="invite-rsvp" || selectedId==="invite-gifts")){
+      const fallback=configRef.current.screens.invite.elements.find(element=>
+        element.id!=="invite-rsvp" && element.id!=="invite-gifts"
+      );
+      setSelectedId(fallback?.id||null);
+    }
+
     setSelectedPart(null);
   }
 
@@ -2107,19 +2117,19 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
               className={inspectorMode==="essential" ? styles.inspectorTabActive : ""}
               onClick={()=>setInspectorMode("essential")}
             >
-              Essencial
+              Editar
             </button>
             <button
               className={inspectorMode==="pro" ? styles.inspectorTabActive : ""}
               onClick={()=>setInspectorMode("pro")}
             >
-              Pro
+              Avançado
             </button>
             <button
               className={inspectorMode==="screen" ? styles.inspectorTabActive : ""}
               onClick={()=>setInspectorMode("screen")}
             >
-              Tela
+              Seção
             </button>
           </div>
         </div>
