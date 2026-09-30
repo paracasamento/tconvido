@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import {
   RsvpFlowView,
@@ -32,6 +32,16 @@ export function RsvpScenarioCanvas({
   );
 
   const flowSlot = screen.elements.find(element => element.slot === "rsvp-flow");
+
+  useEffect(() => {
+    if (state !== "confirmed") return;
+
+    const timer = window.setTimeout(() => {
+      window.location.replace("/convite");
+    }, 2400);
+
+    return () => window.clearTimeout(timer);
+  }, [state]);
 
   return (
     <InviteCanvas
