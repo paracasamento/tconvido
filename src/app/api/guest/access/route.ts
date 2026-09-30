@@ -5,7 +5,7 @@ import { getEvent } from "@/lib/event";
 import { createInviteSession } from "@/lib/invite-session";
 import { isRateLimited, recordFailure } from "@/lib/rate-limit";
 import { normalizeName, sameOrigin, verifyGuestCode } from "@/lib/security";
-import { createGuestSession } from "@/lib/sessions";
+import { clearRsvpSubmissionSession, createGuestSession } from "@/lib/sessions";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -129,6 +129,7 @@ export async function POST(request: Request) {
 
     const guestId = String(guestMatches[0].id);
     const officialName = String(guestMatches[0].name || parsed.data.name);
+    await clearRsvpSubmissionSession();
     await createInviteSession(event.id, officialName, guestId);
     await createGuestSession(guestId);
 
@@ -171,6 +172,7 @@ export async function POST(request: Request) {
   }
 
   await sql`UPDATE guest_access_codes SET last_used_at = now() WHERE id = ${matched.code_id}`;
+  await clearRsvpSubmissionSession();
   await createInviteSession(event.id, officialName, guestId);
   await createGuestSession(guestId);
   return NextResponse.json({ ok: true });

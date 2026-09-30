@@ -29,7 +29,10 @@ export default async function RsvpPage() {
   }
 
   let initialSubmission: CurrentRsvpSubmission | null = null;
-  if (submissionSession?.event_id === invite.event_id) {
+  if (
+    submissionSession?.event_id === invite.event_id &&
+    submissionSession.guest_id === guestSession.guest_id
+  ) {
     initialSubmission = {
       id: submissionSession.submission_id,
       submitted_name: submissionSession.submitted_name,
@@ -37,7 +40,7 @@ export default async function RsvpPage() {
       children_count: Number(submissionSession.children_count || 0),
     };
   } else if (
-    guestSession?.event_id === invite.event_id &&
+    guestSession.event_id === invite.event_id &&
     guestSession.rsvp_status === "confirmed"
   ) {
     const snapshot = await getGuestRsvpSnapshot(guestSession.guest_id);
