@@ -123,6 +123,25 @@ function validConfig(value: any): value is InviteVisualConfig {
       inviteFlow.backgroundSource !== "invite" &&
       inviteFlow.backgroundSource !== "gifts"
     ) return false;
+
+    const afterScreen = inviteFlow.afterInviteScreen;
+    if (afterScreen != null) {
+      if (
+        !afterScreen ||
+        typeof afterScreen !== "object" ||
+        Array.isArray(afterScreen) ||
+        afterScreen.id !== "invite" ||
+        !Array.isArray(afterScreen.elements) ||
+        afterScreen.elements.length > 120 ||
+        typeof afterScreen.backgroundColor !== "string" ||
+        typeof afterScreen.minHeight !== "number" ||
+        !cssOk(afterScreen.customCss) ||
+        !safeImageRef(afterScreen.backgroundImage) ||
+        !afterScreen.elements.every(validElement)
+      ) {
+        return false;
+      }
+    }
   }
 
   const savedLayouts = value.savedLayouts;
