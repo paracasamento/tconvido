@@ -1800,16 +1800,54 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
   return <div className={styles.builder}>
 
-    <header className={styles.topbar}><div className={styles.brand}><strong>Construtor visual Ultra</strong><span>Edição visual + partes internas + CSS avançado</span></div><div className={styles.toolbar}>
+    <header className={styles.topbar}><div className={styles.brand}><strong>Editor do convite</strong><span>Mobile-first · preview real do convidado</span></div><div className={styles.toolbar}>
 
-      <button onClick={undo} disabled={!history.length}><Undo2 size={16}/></button><button onClick={redo} disabled={!future.length}><Redo2 size={16}/></button><span className={styles.sep}/><label className={styles.viewportSelect}>Preview <select value={previewWidth} onChange={e=>setPreviewWidth(Number(e.target.value))}><option value={360}>360</option><option value={390}>390</option><option value={393}>393</option><option value={414}>414</option><option value={430}>430</option></select></label>{screenId==="rsvp"&&<label className={styles.viewportSelect}>Cenário RSVP <select value={rsvpPreviewState} onChange={e=>openRsvpScenario(e.target.value as RsvpPreviewState)}>{RSVP_PREVIEW_STATES.map(item=><option key={item.id} value={item.id}>{item.short}</option>)}</select></label>}<span className={styles.sep}/><button onClick={()=>setGrid(v=>!v)} className={grid?styles.on:""}><Grid3X3 size={16}/></button><button onClick={()=>setSnap(v=>!v)} className={snap?styles.on:""}>Snap</button><span className={styles.sep}/><button onClick={()=>setZoom(z=>clamp(z-.1,.45,1.6))}><ZoomOut size={16}/></button><span className={styles.zoom}>{Math.round(zoom*100)}%</span><button onClick={()=>setZoom(z=>clamp(z+.1,.45,1.6))}><ZoomIn size={16}/></button><span className={styles.sep}/><button onClick={resetScreen}><RotateCcw size={16}/> Restaurar</button><button className={styles.save} onClick={save} disabled={saving}><Save size={16}/>{saving?"Salvando...":"Salvar agora"}</button>
+      <button onClick={undo} disabled={!history.length} title="Desfazer"><Undo2 size={16}/></button>
+      <button onClick={redo} disabled={!future.length} title="Refazer"><Redo2 size={16}/></button>
+      <span className={styles.sep}/>
+      <label className={styles.viewportSelect}>Mobile <select value={previewWidth} onChange={e=>setPreviewWidth(Number(e.target.value))}><option value={360}>360</option><option value={390}>390</option><option value={393}>393</option><option value={414}>414</option><option value={430}>430</option></select></label>
+      {editorPage==="invite-flow"&&<label className={styles.viewportSelect}>Estado <select value={inviteFlowState} onChange={e=>changeInviteFlowState(e.target.value as InviteFlowState)}><option value="before">Antes do RSVP</option><option value="after">Após confirmação</option></select></label>}
+      {screenId==="rsvp"&&<label className={styles.viewportSelect}>Etapa <select value={rsvpPreviewState} onChange={e=>openRsvpScenario(e.target.value as RsvpPreviewState)}>{RSVP_PREVIEW_STATES.map(item=><option key={item.id} value={item.id}>{item.short}</option>)}</select></label>}
+      <span className={styles.sep}/>
+      <button onClick={()=>setGrid(v=>!v)} className={grid?styles.on:""} title="Grid"><Grid3X3 size={16}/></button>
+      <button onClick={()=>setSnap(v=>!v)} className={snap?styles.on:""}>Snap</button>
+      <span className={styles.sep}/>
+      <button onClick={()=>setZoom(z=>clamp(z-.1,.45,1.6))}><ZoomOut size={16}/></button>
+      <span className={styles.zoom}>{Math.round(zoom*100)}%</span>
+      <button onClick={()=>setZoom(z=>clamp(z+.1,.45,1.6))}><ZoomIn size={16}/></button>
+      <span className={styles.sep}/>
+      <a className={styles.previewLink} href="/convite" target="_blank" rel="noreferrer"><ExternalLink size={15}/> Preview</a>
+      <button onClick={resetScreen}><RotateCcw size={16}/> Restaurar seção</button>
+      <button className={styles.save} onClick={save} disabled={saving}><Save size={16}/>{saving?"Salvando...":"Salvar"}</button>
 
     </div></header>{status&&<div className={styles.status}>{status}</div>}
 
     <div className={styles.workspace}>
 
       <aside className={styles.leftbar}>
-        <div className={styles.screenTabs}>{SCREEN_IDS.map(id=><button key={id} className={screenId===id?styles.active:""} onClick={()=>switchScreen(id)}>{config.screens[id].name}</button>)}</div>
+        <div className={styles.leftHeading}>Páginas</div>
+        <div className={styles.screenTabs}>
+          {EDITOR_PAGES.map(page=><button key={page.id} className={editorPage===page.id?styles.active:""} onClick={()=>switchEditorPage(page.id)}>{page.label}</button>)}
+        </div>
+
+        {editorPage==="invite-flow"&&(
+          <section className={styles.flowNavigator}>
+            <div className={styles.flowStateSwitch}>
+              <button type="button" className={inviteFlowState==="before"?styles.flowStateActive:""} onClick={()=>changeInviteFlowState("before")}>Antes da confirmação</button>
+              <button type="button" className={inviteFlowState==="after"?styles.flowStateActive:""} onClick={()=>changeInviteFlowState("after")}>Após confirmação</button>
+            </div>
+
+            <div className={styles.leftHeading}>Seções</div>
+            <div className={styles.sectionNavigator}>
+              <button type="button" className={inviteSection==="invite"?styles.sectionActive:""} onClick={()=>switchInviteSection("invite")}>
+                <span>1</span><div><strong>Convite</strong><small>{inviteFlowState==="after"?"Sem botões de ação":"Com confirmar presença"}</small></div>
+              </button>
+              {inviteFlowState==="after"&&<button type="button" className={inviteSection==="gifts"?styles.sectionActive:""} onClick={()=>switchInviteSection("gifts")}>
+                <span>2</span><div><strong>Lista de presentes</strong><small>Segunda seção no scroll</small></div>
+              </button>}
+            </div>
+          </section>
+        )}
 
         {screenId==="rsvp"&&<section className={styles.rsvpScenarios}>
           <div className={styles.rsvpScenariosHeader}><strong>Cenários da confirmação</strong><span>5 estados</span></div>
