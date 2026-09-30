@@ -4,6 +4,7 @@ import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
+import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
 import { db } from "@/lib/db";
 import { displayDate } from "@/lib/event";
@@ -174,6 +175,7 @@ export default async function InvitationPage() {
 
       const grid = gifts.length ? (
         <GiftGridView key="gift-grid" parts={gridSlot?.partStyles}>
+          <GiftColorPreferencesNotice colors={giftsPageData.event.gift_color_preferences} />
           {gifts.map(gift => (
             <GiftCard
               key={gift.id}
