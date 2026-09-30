@@ -20,16 +20,7 @@ export default async function SetupGiftsPage() {
         o.description,
         o.image_path,
         o.status,
-        o.sort_order,
-        (
-          SELECT gu.name
-          FROM reservations r
-          JOIN guests gu ON gu.id = r.guest_id
-          WHERE r.gift_id = o.id
-            AND r.released_at IS NULL
-          ORDER BY r.created_at DESC
-          LIMIT 1
-        ) AS reserved_by_name
+        o.sort_order
       FROM admin_gift_overview o
       WHERE o.event_id = ${session.event_id}
       ORDER BY o.sort_order, o.created_at
@@ -82,8 +73,7 @@ export default async function SetupGiftsPage() {
                   name: gift.name,
                   description: gift.description,
                   image_url: gift.image_path ? imageMap.get(gift.image_path) || null : null,
-                  status: gift.status,
-                  reserved_by_name: gift.reserved_by_name || null
+                  status: gift.status
                 }}
               />
             ))}
