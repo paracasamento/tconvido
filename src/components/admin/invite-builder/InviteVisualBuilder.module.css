@@ -1366,3 +1366,140 @@
   letter-spacing:.02em;
   background:rgba(255,255,255,.78);
 }
+
+
+/* =========================================================
+   Fluxo contínuo opcional
+   ========================================================= */
+
+.flowBackgroundControl{
+  display:grid;
+  gap:8px;
+  padding:9px;
+  border:1px solid rgba(18,48,142,.12);
+  border-radius:10px;
+  background:#fff;
+}
+
+.flowBackgroundControl>label:first-child{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:start;
+  gap:8px;
+  cursor:pointer;
+}
+
+.flowBackgroundControl input[type=checkbox]{
+  width:14px;
+  height:14px;
+  margin:1px 0 0;
+}
+
+.flowBackgroundControl span{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+
+.flowBackgroundControl strong{
+  color:#27324d;
+  font-size:9.5px;
+}
+
+.flowBackgroundControl small{
+  color:#808796;
+  font-size:8px;
+  line-height:1.35;
+}
+
+.flowBackgroundSource{
+  display:grid;
+  gap:4px;
+  color:#71798a;
+  font-size:8px;
+  font-weight:700;
+}
+
+.flowBackgroundSource select{
+  width:100%;
+  min-height:31px;
+  padding:0 8px;
+  border:1px solid #dde2ea;
+  border-radius:7px;
+  background:#f8f9fb;
+  color:#333b4d;
+  font-size:9px;
+}
+
+.flowInspectorCard{
+  display:grid;
+  gap:9px;
+  margin-bottom:10px;
+  padding:10px;
+  border:1px solid rgba(18,48,142,.13);
+  border-radius:10px;
+  background:#f7f9ff;
+}
+
+.flowInspectorCard .utilityButton{
+  align-self:end;
+  min-height:34px;
+}
+
+.continuousPreview{
+  width:max-content;
+  max-width:100%;
+  margin:20px auto 26px;
+  display:grid;
+  justify-items:center;
+  gap:8px;
+}
+
+.continuousPreviewHeader{
+  width:min(430px,100%);
+  min-height:46px;
+  padding:8px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid #b9c9f0;
+  border-radius:10px;
+  background:#f4f7ff;
+}
+
+.continuousPreviewHeader>div{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+
+.continuousPreviewHeader strong{
+  color:#12308e;
+  font-size:9.5px;
+}
+
+.continuousPreviewHeader span{
+  color:#737c90;
+  font-size:8px;
+  line-height:1.3;
+}
+
+.continuousPreviewHeader small{
+  flex:0 0 auto;
+  color:#80889a;
+  font-size:8px;
+}
+
+.continuousPreviewCanvas{
+  overflow:hidden;
+  border-radius:2px;
+  box-shadow:0 18px 55px rgba(24,31,48,.16);
+}
+
+.continuousPreviewCanvas :global(.visual-invite-flow){
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  box-shadow:none!important;
+}
