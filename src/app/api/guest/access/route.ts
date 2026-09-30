@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     `;
 
     if (guestMatches.length !== 1) {
-      const submittedName = parsed.data.name.replace(/\\s+/g, " ").trim();
+      const submittedName = parsed.data.name.replace(/\s+/g, " ").trim();
 
       await sql`
         INSERT INTO guest_access_attempts (
