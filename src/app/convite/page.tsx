@@ -1,5 +1,5 @@
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
-import { resolveInviteFlowScreen, type InviteScreen } from "@/lib/invite-builder";
+import type { InviteScreen } from "@/lib/invite-builder";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
@@ -56,22 +56,10 @@ export default async function InvitationPage() {
     guestSession?.event_id === invite.event_id &&
     guestSession.rsvp_status === "confirmed";
 
-  const baseScreen = confirmed
-    ? resolveInviteFlowScreen(
-        {
-          version: 2,
-          screens: {
-            cover: pageData.screen,
-            access: pageData.screen,
-            invite: pageData.screen,
-            rsvp: pageData.screen,
-            gifts: pageData.screen,
-          },
-          inviteFlow: pageData.inviteFlow,
-        },
-        "after"
-      )
-    : pageData.screen;
+  const baseScreen =
+    confirmed && pageData.inviteFlow?.afterInviteScreen
+      ? pageData.inviteFlow.afterInviteScreen
+      : pageData.screen;
 
   const screen = {
     ...baseScreen,
