@@ -40,8 +40,8 @@ export default async function MyGiftPage() {
     <main className="protected-shell">
       <SiteHeader />
       <section className="narrow-panel page-pad">
-        <p className="eyebrow">Seu presente</p>
-        <h1>Presente reservado</h1>
+        <p className="eyebrow">Sua escolha</p>
+        <h1>Seu presente</h1>
         <div className="my-gift-card">
           <div className="my-gift-media">
             {imageUrl ? (
@@ -50,13 +50,12 @@ export default async function MyGiftPage() {
               <Monogram size={110} />
             )}
           </div>
-          <span className="status status--reserved_by_me">Reservado por você</span>
           <h2>{gift.name}</h2>
           {gift.description && <p>{gift.description}</p>}
         </div>
-        <p className="muted">Se mudar de ideia, você pode liberar este presente para que outro convidado possa escolhê-lo.</p>
-        <Link className="button button--soft" href="/presentes">Continuar vendo a lista</Link>
-        <ReleaseGiftButton name={gift.name} />
+        <p className="muted">Esta é a sua escolha atual. Se mudar de ideia, você pode liberá-la para que outra pessoa escolha.</p>
+        <Link className="button button--soft" href="/presentes">Voltar para a lista</Link>
+        <ReleaseGiftButton name={gift.name} label="Liberar escolha" />
       </section>
     </main>
   );
