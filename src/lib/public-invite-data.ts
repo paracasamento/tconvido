@@ -151,6 +151,12 @@ export async function getPublicInvitePageData(
   const inviteFlow: InviteFlowSettings = {
     continuousBackground: rawFlow?.continuousBackground === true,
     backgroundSource: rawFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+    afterInviteScreen:
+      rawFlow?.afterInviteScreen &&
+      typeof rawFlow.afterInviteScreen === "object" &&
+      Array.isArray(rawFlow.afterInviteScreen.elements)
+        ? rawFlow.afterInviteScreen
+        : undefined,
   };
 
   return { event: rowToEvent(row), screen, inviteFlow };
