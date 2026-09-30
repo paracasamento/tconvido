@@ -167,6 +167,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   const [editorPage,setEditorPage]=useState<EditorPageId>("cover");
   const [inviteFlowState,setInviteFlowState]=useState<InviteFlowState>("before");
   const [inviteSection,setInviteSection]=useState<"invite"|"gifts">("invite");
+  const [giftPreviewState,setGiftPreviewState]=useState<GiftUi["status"]>("available");
   const [unitMode,setUnitMode]=useState<"px"|"pct">("px");
 
   const [selectedId,setSelectedId]=useState<string|null>(normalizedInitial.screens.cover.elements[0]?.id||null); const [selectedPart,setSelectedPart]=useState<string|null>(null);
@@ -906,6 +907,25 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
   function slotPartsForEditor(element:InviteElement){
     const all=SLOT_PARTS[element.slot!]||[];
+
+    if(element.slot==="gift-grid"){
+      const allowed=new Set([
+        "grid",
+        "gift-card",
+        "gift-media",
+        "gift-image",
+        "gift-content",
+        "gift-title",
+        "gift-error",
+        ...(giftPreviewState==="reserved"
+          ? ["gift-card-reserved","gift-indicator-reserved"]
+          : giftPreviewState==="reserved_by_me"
+            ? ["gift-card-mine","gift-indicator-mine"]
+            : [])
+      ]);
+      return all.filter(part=>allowed.has(part.id));
+    }
+
     if(screenId!=="rsvp"||element.slot!=="rsvp-flow") return all;
 
     const allowed=new Set(RSVP_SCENARIO_PART_IDS[rsvpPreviewState]);
@@ -1282,7 +1302,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   }
 
   async function openPreview(){
-    const href=`/gestao/editor/preview?page=${editorPage}&state=${inviteFlowState}&rsvp=${rsvpPreviewState}`;
+    const href=`/gestao/editor/preview?page=${editorPage}&state=${inviteFlowState}&rsvp=${rsvpPreviewState}&gift=${giftPreviewState}`;
     const previewWindow=window.open("about:blank","_blank");
 
     if(previewWindow){
@@ -1863,7 +1883,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           {previewData.gifts.map(gift=>(
             <GiftCard
               key={gift.id}
-              gift={gift}
+              gift={{...gift,status:giftPreviewState}}
               preview
               parts={element.partStyles}
               selectedPart={selectedId===element.id ? selectedPart : null}
@@ -1931,7 +1951,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       <GiftGridView key="passive-gift-grid" parts={passiveGiftGrid.partStyles} preview>
         <GiftColorPreferencesNotice colors={previewData.giftColorPreferences} />
         {previewData.gifts.map(gift => (
-          <GiftCard key={gift.id} gift={gift} preview parts={passiveGiftGrid.partStyles} />
+          <GiftCard key={gift.id} gift={{...gift,status:giftPreviewState}} preview parts={passiveGiftGrid.partStyles} />
         ))}
       </GiftGridView>
     ) : (
@@ -2020,6 +2040,17 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                 <span>2</span><div><strong>Lista de presentes</strong><small>Segunda seção no scroll</small></div>
               </button>}
             </div>
+
+            {inviteFlowState==="after"&&inviteSection==="gifts"&&(
+              <div className={styles.giftPreviewStates}>
+                <div><strong>Estado do card</strong><small>Somente para editar e visualizar.</small></div>
+                <div className={styles.giftPreviewStateButtons}>
+                  <button type="button" className={giftPreviewState==="available"?styles.giftPreviewStateActive:""} onClick={()=>{setGiftPreviewState("available");setSelectedPart(null)}}>Normal</button>
+                  <button type="button" className={giftPreviewState==="reserved"?styles.giftPreviewStateActive:""} onClick={()=>{setGiftPreviewState("reserved");setSelectedPart(null)}}>Reservado</button>
+                  <button type="button" className={giftPreviewState==="reserved_by_me"?styles.giftPreviewStateActive:""} onClick={()=>{setGiftPreviewState("reserved_by_me");setSelectedPart(null)}}>Minha escolha</button>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
