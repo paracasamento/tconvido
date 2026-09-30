@@ -6,8 +6,10 @@ import { ReleaseGiftButton } from "@/components/ReleaseGiftButton";
 import styles from "./CurrentReservationNotice.module.css";
 
 export function CurrentReservationNotice({
+  giftId,
   giftName,
 }: {
+  giftId: string;
   giftName: string;
 }) {
   return (
@@ -28,6 +30,7 @@ export function CurrentReservationNotice({
         </Link>
 
         <ReleaseGiftButton
+          giftId={giftId}
           name={giftName}
           className={styles.release}
           label="Liberar"
