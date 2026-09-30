@@ -1858,7 +1858,9 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           </button>
         </section>}
 
-        <section className={styles.layoutLibrary}>
+        <details className={styles.utilityDrawer}>
+          <summary><ImagePlus size={14}/> Biblioteca e decorações <ChevronDown size={14}/></summary>
+          <section className={styles.layoutLibrary}>
           <div className={styles.layoutLibraryHeader}>
             <div>
               <strong>Decorações salvas</strong>
@@ -1897,12 +1899,22 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                   </div>
                 </article>)}
               </div>}
-        </section>
+          </section>
+          <div className={styles.assetTitle}>Identidade visual</div>
+          <div className={styles.assets}>{ASSETS.map(([name,src])=><button key={src} onClick={()=>addElement("image",src,name)}><img src={src} alt=""/><span>{name}</span></button>)}</div>
+        </details>
 
-        <div className={styles.sectionTitle}><Layers3 size={15}/> Camadas <span>{screen.elements.length}</span></div><div className={styles.addGrid}><button onClick={()=>addElement("text")}><Type size={14}/> Texto</button><button onClick={()=>addElement("image")}><ImagePlus size={14}/> Imagem</button><button onClick={()=>addElement("link")}><Link2 size={14}/> Botão</button><button onClick={()=>addElement("box")}><Box size={14}/> Container</button></div>
+        <div className={styles.layersHeader}>
+          <div className={styles.sectionTitle}><Layers3 size={15}/> Camadas <span>{layerElements.length}</span></div>
+          <details className={styles.addMenu}>
+            <summary><Plus size={14}/> Adicionar</summary>
+            <div className={styles.addGrid}><button onClick={()=>addElement("text")}><Type size={14}/> Texto</button><button onClick={()=>addElement("image")}><ImagePlus size={14}/> Imagem</button><button onClick={()=>addElement("link")}><Link2 size={14}/> Botão</button><button onClick={()=>addElement("box")}><Box size={14}/> Container</button></div>
+          </details>
+        </div>
+
 
         <div className={styles.layers}>
-          {[...screen.elements].sort((a,b)=>b.zIndex-a.zIndex).map(el=>{
+          {[...layerElements].sort((a,b)=>b.zIndex-a.zIndex).map(el=>{
             const hidden=el.visible===false;
             return <div key={el.id}>
               <div className={`${styles.layer} ${selectedId===el.id&&!selectedPart?styles.layerActive:""} ${hidden?styles.layerHidden:""}`} onClick={()=>{setSelectedId(el.id);setSelectedPart(null)}}>
@@ -1931,8 +1943,6 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
             </div>
           })}
         </div>
-
-        <div className={styles.assetTitle}>Identidade visual</div><div className={styles.assets}>{ASSETS.map(([name,src])=><button key={src} onClick={()=>addElement("image",src,name)}><img src={src} alt=""/><span>{name}</span></button>)}</div>
 
       </aside>
 
