@@ -1,4 +1,5 @@
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
+import type { InviteScreen } from "@/lib/invite-builder";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
@@ -81,7 +82,7 @@ export default async function InvitationPage() {
   const target = `${event.event_date}T${event.event_time}:00-03:00`;
   const countdownInitialNow = Date.now();
 
-  let giftsScreen: Awaited<ReturnType<typeof getPublicInvitePageData>>["screen"] | null = null;
+  let giftsScreen: InviteScreen | null = null;
   let giftsSlots: Record<string, React.ReactNode> | null = null;
 
   if (confirmed && guestSession) {
