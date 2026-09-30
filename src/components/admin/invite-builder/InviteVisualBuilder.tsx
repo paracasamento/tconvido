@@ -1977,10 +1977,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
         )}
 
         <div className={styles.deviceLabel}>
-          {CANVAS_W} × {CANVAS_H}
-          {" • "}
-          {selectedPart?`editando: ${selectedPart}`:snap?`snap ${gridPx}px`:"livre"}
-          {selectedPx?` • X ${selectedPx.x.toFixed(1)} Y ${selectedPx.y.toFixed(1)} W ${selectedPx.w.toFixed(1)} H ${selectedPx.h.toFixed(1)} px`:""}
+          {CANVAS_W}px · {screenId==="gifts"?"Lista de presentes":screen.name}
         </div>
 
         <div className={styles.measurementShell}>
@@ -2150,11 +2147,11 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
         {inspectorMode === "screen" ? (
           <>
             <div className={styles.inspectorIntro}>
-              Configurações do canvas, background, grid, régua e guias. Essas opções não alteram o elemento selecionado.
+              Fundo e configurações da seção ativa. Ferramentas de precisão ficam recolhidas abaixo.
             </div>
 
             <details open className={styles.screenSettings}>
-              <summary>Background da tela <ChevronDown size={14}/></summary>
+              <summary>Fundo da seção <ChevronDown size={14}/></summary>
               <div className={styles.panel}>
                 <div className={styles.grid2}>
                   <label>
@@ -2404,10 +2401,10 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
             </details>
 
             <details>
-              <summary>CSS da tela <ChevronDown size={14}/></summary>
+              <summary>CSS avançado da seção <ChevronDown size={14}/></summary>
               <div className={styles.panel}>
                 <label>
-                  CSS avançado da tela
+                  CSS da seção
                   <textarea
                     rows={7}
                     value={screen.customCss||""}
