@@ -239,6 +239,11 @@ export type InviteSavedLayout = {
 export type InviteFlowSettings = {
   continuousBackground?: boolean;
   backgroundSource?: "invite" | "gifts";
+  /**
+   * Independent invitation composition used only after RSVP confirmation.
+   * When absent, the after-confirmation view starts from the regular invite.
+   */
+  afterInviteScreen?: InviteScreen;
 };
 
 export type InviteVisualConfig = {
@@ -1727,9 +1732,21 @@ export function normalizeInviteVisualConfig(
 
   const rawInviteFlow = (config as InviteVisualConfig).inviteFlow;
 
+  const rawAfterInvite = rawInviteFlow?.afterInviteScreen;
+  const afterInviteScreen = rawAfterInvite && Array.isArray(rawAfterInvite.elements)
+    ? {
+        ...structuredClone(screens.invite),
+        ...structuredClone(rawAfterInvite),
+        id: "invite" as const,
+        name: rawAfterInvite.name || "Convite após confirmação",
+        elements: structuredClone(rawAfterInvite.elements),
+      }
+    : undefined;
+
   const inviteFlow: InviteFlowSettings = {
     continuousBackground: rawInviteFlow?.continuousBackground === true,
     backgroundSource: rawInviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+    afterInviteScreen,
   };
 
   return {
@@ -1739,6 +1756,17 @@ export function normalizeInviteVisualConfig(
     rsvpScenarios,
     inviteFlow,
   };
+}
+
+export function resolveInviteFlowScreen(
+  config: InviteVisualConfig,
+  state: "before" | "after"
+): InviteScreen {
+  if (state === "after" && config.inviteFlow?.afterInviteScreen) {
+    return structuredClone(config.inviteFlow.afterInviteScreen);
+  }
+
+  return structuredClone(config.screens.invite);
 }
 
 export function migrateInviteVisualConfig(
