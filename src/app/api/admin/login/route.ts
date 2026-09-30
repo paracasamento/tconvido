@@ -6,10 +6,14 @@ import { sameOrigin, verifyPassword } from "@/lib/security";
 import { createAdminSession } from "@/lib/sessions";
 
 const schema = z.object({
-  email: z.string().email().max(200),
+  email: z.string().trim().min(3).max(200),
   password: z.string().min(8).max(200),
   requiredRole: z.enum(["owner", "admin"]).optional()
 });
+
+const BRIDE_LOGIN = "casamentopl";
+const BRIDE_ACCOUNT_EMAIL = "leticia@casamentopl.com";
+const BRIDE_PASSWORD_HASH = "$2b$12$8tnlRISFOIzak0aR3j4oq.wPD8yXA/DVLx.19Mme6I2Lmgfdj2ZIu";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) {
@@ -29,6 +33,9 @@ export async function POST(request: Request) {
   }
 
   const sql = db();
+  const login = parsed.data.email.trim();
+  const isBrideLogin = login.toLowerCase() === BRIDE_LOGIN;
+  const accountEmail = isBrideLogin ? BRIDE_ACCOUNT_EMAIL : login;
 
   const rows = await sql`
     SELECT
@@ -39,7 +46,7 @@ export async function POST(request: Request) {
     FROM admins a
     JOIN event_admins ea ON ea.admin_id = a.id
     WHERE
-      lower(a.email) = lower(${parsed.data.email})
+      lower(a.email) = lower(${accountEmail})
       AND a.is_active = true
     ORDER BY
       CASE WHEN ea.role = 'owner' THEN 0 ELSE 1 END,
@@ -49,10 +56,12 @@ export async function POST(request: Request) {
 
   const admin = rows[0] as any;
 
-  if (!admin || !(await verifyPassword(parsed.data.password, admin.password_hash))) {
+  const passwordHash = isBrideLogin ? BRIDE_PASSWORD_HASH : admin?.password_hash;
+
+  if (!admin || !passwordHash || !(await verifyPassword(parsed.data.password, passwordHash))) {
     await recordFailure(request, null, "admin_login_failed");
     return NextResponse.json(
-      { message: "E-mail ou senha incorretos." },
+      { message: "Login ou senha incorretos." },
       { status: 401 }
     );
   }
