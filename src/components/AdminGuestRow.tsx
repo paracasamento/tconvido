@@ -51,6 +51,7 @@ export function AdminGuestRow({
   const [allowedChildren, setAllowedChildren] = useState(Math.max(0, Number(guest.allowed_children || 0)));
 
   async function regenerate() {
+    if (accessMode !== "individual") return;
     setBusy(true);
     setMessage("");
     try {
@@ -200,7 +201,7 @@ export function AdminGuestRow({
             </div>
           )}
 
-          {newCode && (
+          {accessMode === "individual" && newCode && (
             <div className="credential-mini credential-mini--sheet">
               <span>Nova senha</span>
               <code>{newCode}</code>
@@ -219,7 +220,8 @@ export function AdminGuestRow({
         </div>
       </AdminSheet>
 
-      <AppModal
+      {accessMode === "individual" && (
+        <AppModal
         open={pendingAction === "code"}
         title={`Gerar uma nova senha para ${guest.name}?`}
         description="A senha anterior deixará de funcionar para novos acessos."
@@ -227,7 +229,8 @@ export function AdminGuestRow({
         busy={busy}
         onConfirm={regenerate}
         onClose={() => !busy && setPendingAction(null)}
-      />
+        />
+      )}
       <AppModal
         open={pendingAction === "remove"}
         title={`Remover ${guest.name}?`}
