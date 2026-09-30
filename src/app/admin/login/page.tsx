@@ -26,7 +26,7 @@ export default async function AdminLoginPage({
         <p className="eyebrow">Área dos noivos</p>
         <h1>Bem-vindos</h1>
         <p>Entre para gerenciar convidados, presentes e informações do chá.</p>
-        <AdminLoginForm redirectTo={next} />
+        <AdminLoginForm redirectTo={next} allowUsername />
       </section>
     </main>
   );
