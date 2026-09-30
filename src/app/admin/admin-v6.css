@@ -2012,3 +2012,189 @@
 }
 .setup-overview-row-v7.is-complete > span { background: #edf5ee; color: #56775e; }
 .setup-overview-row-v7 strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--admin-text); font-size: .68rem; }
+
+
+/* =========================================================
+   Convidados v8 — layout próprio, sem colisão com o convite público
+   ========================================================= */
+
+.admin-guests-page-v8 .admin-page-header {
+  margin-bottom: 16px;
+}
+
+.admin-guest-summary-v8 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-guest-summary-v8 > div {
+  min-width: 0;
+  min-height: 78px;
+  padding: 12px 13px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  border: 1px solid var(--admin-line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fff 0%, #fbfbfd 100%);
+  box-shadow: 0 8px 24px rgba(20,18,47,.035);
+}
+
+.admin-guest-summary-v8 strong {
+  color: var(--admin-brand);
+  font-size: 1.3rem;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+.admin-guest-summary-v8 span {
+  color: var(--admin-muted);
+  font-size: .68rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.admin-guests-page-v8 .admin-list-section-v6 {
+  gap: 9px;
+}
+
+.admin-guests-page-v8 .admin-list-toolbar-v6 {
+  align-items: center;
+}
+
+.admin-guests-empty-v8 {
+  min-height: 148px;
+  padding: 24px 18px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  text-align: center;
+  border: 1px solid var(--admin-line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(15,10,113,.035), transparent 48%),
+    #fff;
+  box-shadow: 0 10px 30px rgba(20,18,47,.03);
+}
+
+.admin-guests-empty-v8__icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: var(--admin-brand);
+  background: var(--admin-brand-soft);
+}
+
+.admin-guests-empty-v8 strong {
+  color: var(--admin-text);
+  font-size: .86rem;
+  font-weight: 800;
+}
+
+.admin-guests-empty-v8 p {
+  max-width: 290px;
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: .68rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 520px) {
+  .admin-guests-page-v8 .admin-page-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .admin-guests-page-v8 .admin-page-header h1 {
+    font-size: 1.42rem;
+  }
+
+  .admin-guests-page-v8 .admin-page-header__action {
+    align-self: start;
+  }
+
+  .admin-guests-page-v8.admin-management-page-v6 .admin-page-header__action .admin-add-trigger {
+    width: auto;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 11px;
+    gap: 5px;
+    overflow: visible;
+    border-radius: 12px;
+    font-size: .68rem;
+  }
+
+  .admin-guests-page-v8.admin-management-page-v6 .admin-page-header__action .admin-add-trigger svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .admin-guest-summary-v8 {
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+
+  .admin-guest-summary-v8 > div {
+    min-height: 68px;
+    padding: 10px 9px;
+    gap: 5px;
+    border-radius: 14px;
+  }
+
+  .admin-guest-summary-v8 strong {
+    font-size: 1.15rem;
+  }
+
+  .admin-guest-summary-v8 span {
+    font-size: .61rem;
+    line-height: 1.15;
+  }
+
+  .admin-guests-page-v8 .admin-list-toolbar-v6 {
+    padding-inline: 1px;
+  }
+
+  .admin-guests-page-v8 .admin-list-toolbar-v6 strong {
+    font-size: .82rem;
+  }
+
+  .admin-guests-empty-v8 {
+    min-height: 136px;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .admin-guests-empty-v8__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+}
+
+@media (min-width: 700px) {
+  .admin-guests-page-v8 {
+    max-width: 760px;
+  }
+
+  .admin-guest-summary-v8 > div {
+    min-height: 82px;
+    padding: 14px 16px;
+  }
+
+  .admin-guest-summary-v8 strong {
+    font-size: 1.45rem;
+  }
+
+  .admin-guest-summary-v8 span {
+    font-size: .72rem;
+  }
+}
