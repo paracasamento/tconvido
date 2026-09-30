@@ -111,6 +111,20 @@ function validConfig(value: any): value is InviteVisualConfig {
     }
   }
 
+  const inviteFlow = value.inviteFlow;
+  if (inviteFlow != null) {
+    if (!inviteFlow || typeof inviteFlow !== "object" || Array.isArray(inviteFlow)) return false;
+    if (
+      typeof inviteFlow.continuousBackground !== "undefined" &&
+      typeof inviteFlow.continuousBackground !== "boolean"
+    ) return false;
+    if (
+      typeof inviteFlow.backgroundSource !== "undefined" &&
+      inviteFlow.backgroundSource !== "invite" &&
+      inviteFlow.backgroundSource !== "gifts"
+    ) return false;
+  }
+
   const savedLayouts = value.savedLayouts;
   if (savedLayouts != null) {
     if (!savedLayouts || typeof savedLayouts !== "object" || Array.isArray(savedLayouts)) return false;
