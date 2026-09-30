@@ -1,6 +1,7 @@
 import { AdminGiftCreate } from "@/components/AdminGiftCreate";
 import { AdminGiftCard } from "@/components/AdminGiftCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { GiftColorPreferencesForm } from "@/components/admin/gifts/GiftColorPreferencesForm";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/sessions";
 import { signGiftImages } from "@/lib/storage";
@@ -8,13 +9,24 @@ import { signGiftImages } from "@/lib/storage";
 export default async function AdminGiftsPage() {
   const session = await requireAdmin("/admin/presentes");
   const sql = db();
-  const gifts = await sql`
-    SELECT id, name, description, image_path, status, sort_order
-    FROM admin_gift_overview
-    WHERE event_id = ${session.event_id}
-    ORDER BY sort_order, created_at
-  `;
-  const giftRows = gifts as any[];
+  const [giftsResult, eventRows] = await Promise.all([
+    sql`
+      SELECT id, name, description, image_path, status, sort_order
+      FROM admin_gift_overview
+      WHERE event_id = ${session.event_id}
+      ORDER BY sort_order, created_at
+    `,
+    sql`
+      SELECT COALESCE(gift_color_preferences, '[]'::jsonb) AS gift_color_preferences
+      FROM events
+      WHERE id = ${session.event_id}
+      LIMIT 1
+    `
+  ]);
+  const giftRows = giftsResult as any[];
+  const colorPreferences = Array.isArray(eventRows[0]?.gift_color_preferences)
+    ? eventRows[0].gift_color_preferences
+    : [];
   const imageMap = await signGiftImages(giftRows.map(gift => gift.image_path || null));
 
   return (
@@ -24,6 +36,8 @@ export default async function AdminGiftsPage() {
         description={`${giftRows.length} ${giftRows.length === 1 ? "item na lista" : "itens na lista"}`}
         action={<AdminGiftCreate />}
       />
+
+      <GiftColorPreferencesForm initialColors={colorPreferences} />
 
       <section className="admin-list-section-v6">
         <div className="admin-list-toolbar-v6">
