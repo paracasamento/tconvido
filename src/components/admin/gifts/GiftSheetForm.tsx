@@ -3,6 +3,8 @@
 import { FileSpreadsheet } from "lucide-react";
 import type { RefObject } from "react";
 
+export type GiftSheetItem = { name: string; quantity: number };
+
 export function GiftSheetForm({
   fileRef,
   fileName,
@@ -12,7 +14,7 @@ export function GiftSheetForm({
 }: {
   fileRef: RefObject<HTMLInputElement | null>;
   fileName: string;
-  items: string[];
+  items: GiftSheetItem[];
   busy: boolean;
   onFile: (file: File | null) => void;
 }) {
@@ -21,7 +23,7 @@ export function GiftSheetForm({
       <label className="sheet-drop">
         <FileSpreadsheet size={28} />
         <strong>{fileName || "Selecionar planilha"}</strong>
-        <span>Excel ou CSV · coluna “Presente”, “Item” ou primeira coluna</span>
+        <span>Excel ou CSV · colunas “Presente” e, opcionalmente, “Quantidade”</span>
         <input
           ref={fileRef}
           type="file"
@@ -32,7 +34,7 @@ export function GiftSheetForm({
       {!!items.length && (
         <div className="sheet-preview">
           <div><strong>{items.length}</strong> itens encontrados</div>
-          <p>{items.slice(0, 6).join(" · ")}{items.length > 6 ? " · …" : ""}</p>
+          <p>{items.slice(0, 6).map(item => item.quantity > 1 ? `${item.name} × ${item.quantity}` : item.name).join(" · ")}{items.length > 6 ? " · …" : ""}</p>
         </div>
       )}
       <button className="button button--primary" disabled={busy || !items.length}>{busy ? "Importando..." : `Importar ${items.length || ""} presentes`}</button>

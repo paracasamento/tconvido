@@ -65,12 +65,12 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
         g.description,
         g.image_path,
         CASE
-          WHEN EXISTS (
-            SELECT 1
+          WHEN (
+            SELECT COUNT(*)
             FROM reservations r
             WHERE r.gift_id = g.id
               AND r.released_at IS NULL
-          ) THEN 'reserved'
+          ) >= g.available_quantity THEN 'reserved'
           ELSE 'available'
         END AS status
       FROM gifts g
@@ -114,12 +114,22 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
     [event.venue, event.city].filter(Boolean).join(", ")
   )}`;
 
+  const giftColorPreferences = Array.isArray(event.gift_color_preferences)
+    ? event.gift_color_preferences
+        .filter((item: any) => item && /^#[0-9a-fA-F]{6}$/.test(String(item.hex || "")))
+        .map((item: any) => ({
+          name: typeof item.name === "string" ? item.name : "",
+          hex: String(item.hex).toUpperCase(),
+        }))
+    : [];
+
   const gifts: GiftUi[] = giftRows.map((row: any) => ({
     id: String(row.id),
     name: String(row.name),
     description: row.description ? String(row.description) : null,
     image_url: giftImageUrl(row.image_path),
     status: row.status === "reserved" ? "reserved" : "available",
+    colors: giftColorPreferences,
   }));
 
   return {
@@ -140,13 +150,6 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
       guest_name: guestRows[0]?.name ? String(guestRows[0].name) : "Convidado",
     },
     gifts,
-    giftColorPreferences: Array.isArray(event.gift_color_preferences)
-      ? event.gift_color_preferences
-          .filter((item: any) => item && /^#[0-9a-fA-F]{6}$/.test(String(item.hex || "")))
-          .map((item: any) => ({
-            name: typeof item.name === "string" ? item.name : "",
-            hex: String(item.hex).toUpperCase(),
-          }))
-      : [],
+    giftColorPreferences,
   };
 }

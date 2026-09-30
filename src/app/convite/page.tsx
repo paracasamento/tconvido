@@ -1,10 +1,10 @@
+import Link from "next/link";
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
 import type { InviteScreen } from "@/lib/invite-builder";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
-import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
 import { db } from "@/lib/db";
 import { displayDate } from "@/lib/event";
@@ -106,20 +106,18 @@ export default async function InvitationPage() {
             WHEN EXISTS (
               SELECT 1
               FROM reservations mine
-              WHERE
-                mine.event_id = ${guestSession.event_id}
+              WHERE mine.event_id = ${guestSession.event_id}
                 AND mine.gift_id = g.id
                 AND mine.guest_id = ${guestSession.guest_id}
                 AND mine.released_at IS NULL
             ) THEN 'reserved_by_me'
-            WHEN EXISTS (
-              SELECT 1
+            WHEN (
+              SELECT COUNT(*)
               FROM reservations taken
-              WHERE
-                taken.event_id = ${guestSession.event_id}
+              WHERE taken.event_id = ${guestSession.event_id}
                 AND taken.gift_id = g.id
                 AND taken.released_at IS NULL
-            ) THEN 'reserved'
+            ) >= g.available_quantity THEN 'reserved'
             ELSE 'available'
           END AS status
         FROM gifts g
@@ -128,6 +126,7 @@ export default async function InvitationPage() {
           AND g.deleted_at IS NULL
           AND g.is_active = true
         ORDER BY g.sort_order, g.created_at
+        LIMIT 8
       `,
       getPublicInvitePageData("gifts", guestSession.event_id),
     ]);
@@ -142,6 +141,9 @@ export default async function InvitationPage() {
           row.status === "reserved_by_me" || row.status === "reserved"
             ? row.status
             : "available",
+        colors: Array.isArray(giftsPageData.event.gift_color_preferences)
+          ? giftsPageData.event.gift_color_preferences
+          : [],
       }));
 
       const gridSlot = giftsPageData.screen.elements.find(
@@ -153,7 +155,6 @@ export default async function InvitationPage() {
 
       const grid = gifts.length ? (
         <GiftGridView key="gift-grid" parts={gridSlot?.partStyles}>
-          <GiftColorPreferencesNotice colors={giftsPageData.event.gift_color_preferences} />
           {gifts.map(gift => (
             <GiftCard
               key={gift.id}
@@ -161,6 +162,9 @@ export default async function InvitationPage() {
               parts={gridSlot?.partStyles}
             />
           ))}
+          <Link className="gift-full-list-link" href="/presentes">
+            VER LISTA COMPLETA
+          </Link>
         </GiftGridView>
       ) : (
         <div key="gift-grid-empty" className="guest-state-card">
@@ -169,7 +173,10 @@ export default async function InvitationPage() {
         </div>
       );
 
-      giftsScreen = giftsPageData.screen;
+      giftsScreen = {
+        ...giftsPageData.screen,
+        minHeight: Math.max(giftsPageData.screen.minHeight, 1500),
+      };
       giftsSlots = {
         "gift-grid": grid,
         "gift-note": (

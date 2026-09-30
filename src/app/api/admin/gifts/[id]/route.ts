@@ -16,11 +16,15 @@ export async function PATCH(
   const form = await request.formData();
   const name = String(form.get("name") || "").trim();
   const description = String(form.get("description") || "").trim() || null;
+  const quantity = Number(form.get("available_quantity") || 1);
   const removeImage = form.get("remove_image") === "1";
   const file = form.get("image");
 
   if (name.length < 2 || name.length > 160) {
     return NextResponse.json({ message: "Informe um nome válido." }, { status: 400 });
+  }
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 999) {
+    return NextResponse.json({ message: "A quantidade deve ser um número entre 1 e 999." }, { status: 400 });
   }
 
   const sql = db();
@@ -42,9 +46,30 @@ export async function PATCH(
       nextImage = null;
     }
 
+    const activeRows = await sql`
+      SELECT COUNT(*)::int AS active_count
+      FROM reservations
+      WHERE gift_id = ${id}
+        AND event_id = ${session.event_id}
+        AND released_at IS NULL
+    `;
+    const activeCount = Number(activeRows[0]?.active_count || 0);
+    if (quantity < activeCount) {
+      if (uploaded) await deleteGiftImage(uploaded);
+      return NextResponse.json(
+        { message: `A quantidade não pode ser menor que as ${activeCount} escolhas já confirmadas.` },
+        { status: 409 }
+      );
+    }
+
     await sql`
       UPDATE gifts
-      SET name = ${name}, description = ${description}, image_path = ${nextImage}
+      SET
+        name = ${name},
+        description = ${description},
+        image_path = ${nextImage},
+        available_quantity = ${quantity},
+        updated_at = now()
       WHERE id = ${id} AND event_id = ${session.event_id} AND deleted_at IS NULL
     `;
 

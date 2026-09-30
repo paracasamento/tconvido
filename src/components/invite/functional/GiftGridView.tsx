@@ -9,21 +9,26 @@ export function GiftGridView({
   preview = false,
   selectedPart = null,
   onSelectPart,
+  naturalHeight = false,
 }: {
   children: React.ReactNode;
   parts?: Record<string, InvitePartStyle>;
   preview?: boolean;
   selectedPart?: string | null;
   onSelectPart?: (id: string) => void;
+  naturalHeight?: boolean;
 }) {
+  const configured = partStyleFromConfig(parts.grid);
+
   return (
     <div
       data-part="grid"
       data-editor-part-selected={preview && selectedPart === "grid" ? "true" : undefined}
       style={{
-        ...partStyleFromConfig(parts.grid),
-        display: parts.grid?.display === "none" ? "grid" : partStyleFromConfig(parts.grid).display,
-        opacity: typeof parts.grid?.opacity === "number" && parts.grid.opacity <= 0 ? 1 : partStyleFromConfig(parts.grid).opacity,
+        ...configured,
+        display: parts.grid?.display === "none" ? "grid" : configured.display,
+        opacity: typeof parts.grid?.opacity === "number" && parts.grid.opacity <= 0 ? 1 : configured.opacity,
+        ...(naturalHeight ? { height: "auto", minHeight: 0 } : {}),
       }}
       onClick={
         preview

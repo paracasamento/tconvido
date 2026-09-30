@@ -12,18 +12,26 @@ import { signGiftImages } from "@/lib/storage";
 export default async function SetupGiftsPage() {
   const session = await requireAdmin();
   const sql = db();
+
   const [giftsResult, setup, eventRows] = await Promise.all([
     sql`
       SELECT
-        o.id,
-        o.name,
-        o.description,
-        o.image_path,
-        o.status,
-        o.sort_order
-      FROM admin_gift_overview o
-      WHERE o.event_id = ${session.event_id}
-      ORDER BY o.sort_order, o.created_at
+        g.id,
+        g.name,
+        g.description,
+        g.image_path,
+        g.sort_order,
+        g.available_quantity,
+        COUNT(r.id)::int AS reserved_count
+      FROM gifts g
+      LEFT JOIN reservations r
+        ON r.gift_id = g.id
+        AND r.event_id = g.event_id
+        AND r.released_at IS NULL
+      WHERE g.event_id = ${session.event_id}
+        AND g.deleted_at IS NULL
+      GROUP BY g.id
+      ORDER BY g.sort_order, g.created_at
     `,
     getAdminSetupState(session.event_id),
     sql`
@@ -33,11 +41,13 @@ export default async function SetupGiftsPage() {
       LIMIT 1
     `
   ]);
+
   const gifts = giftsResult as any[];
   const colorPreferences = Array.isArray(eventRows[0]?.gift_color_preferences)
     ? eventRows[0].gift_color_preferences
     : [];
   if (setup.event.status !== "draft") redirect("/admin/presentes");
+
   const imageMap = await signGiftImages(gifts.map(gift => gift.image_path || null));
 
   return (
@@ -53,7 +63,7 @@ export default async function SetupGiftsPage() {
       <section className="setup-action-card-v6">
         <div>
           <strong>{gifts.length ? `${gifts.length} ${gifts.length === 1 ? "presente" : "presentes"}` : "Nenhum presente ainda"}</strong>
-          <span>Nome é obrigatório. Foto e descrição são opcionais.</span>
+          <span>Você pode definir quantas unidades de cada item ficarão disponíveis.</span>
         </div>
         <AdminGiftCreate />
       </section>
@@ -69,11 +79,12 @@ export default async function SetupGiftsPage() {
               <AdminGiftCard
                 key={gift.id}
                 gift={{
-                  id: gift.id,
-                  name: gift.name,
-                  description: gift.description,
+                  id: String(gift.id),
+                  name: String(gift.name),
+                  description: gift.description == null ? null : String(gift.description),
                   image_url: gift.image_path ? imageMap.get(gift.image_path) || null : null,
-                  status: gift.status
+                  available_quantity: Number(gift.available_quantity || 1),
+                  reserved_count: Number(gift.reserved_count || 0)
                 }}
               />
             ))}

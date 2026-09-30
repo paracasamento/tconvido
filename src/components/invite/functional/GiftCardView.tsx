@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, LockKeyhole } from "lucide-react";
 import { Monogram } from "@/components/Monogram";
 import type { GiftUi } from "@/components/GiftCard";
 import type { InvitePartStyle } from "@/lib/invite-builder";
@@ -68,9 +67,9 @@ export function GiftCardView({
 
   const stateLabel =
     gift.status === "reserved_by_me"
-      ? "Sua escolha"
+      ? `Liberar minha escolha: ${gift.name}`
       : gift.status === "reserved"
-        ? "Presente já reservado"
+        ? `${gift.name} indisponível`
         : `Escolher ${gift.name}`;
 
   return (
@@ -110,45 +109,35 @@ export function GiftCardView({
             sizes="(max-width: 600px) 44vw, 220px"
           />
         ) : (
-          <div
-            {...bind("gift-image")}
-            aria-label="Presente sem foto cadastrada"
-          >
+          <div {...bind("gift-image")} aria-label="Presente sem foto cadastrada">
             <Monogram size={46} />
           </div>
         )}
-
-        {gift.status === "reserved" ? (
-          <span
-            {...bind("gift-indicator-reserved")}
-            className="gift-state-indicator"
-            aria-label="Reservado"
-            title="Reservado"
-          >
-            <LockKeyhole size={14} strokeWidth={1.8} aria-hidden />
-          </span>
-        ) : null}
-
-        {gift.status === "reserved_by_me" ? (
-          <span
-            {...bind("gift-indicator-mine")}
-            className="gift-state-indicator"
-            aria-label="Sua escolha"
-            title="Sua escolha"
-          >
-            <Heart size={14} strokeWidth={1.8} aria-hidden />
-          </span>
-        ) : null}
       </div>
 
-      <div
-        {...bind("gift-content")}
-        style={{
-          minWidth: 0,
-          ...partStyleFromConfig(parts["gift-content"]),
-        }}
-      >
+      <div {...bind("gift-content")} style={{ minWidth: 0, ...partStyleFromConfig(parts["gift-content"]) }}>
         <h3 {...bind("gift-title")}>{gift.name}</h3>
+
+        {!!gift.colors?.length && (
+          <div {...bind("gift-color-row")} className="gift-card-color-row">
+            <span {...bind("gift-color-label")}>Cor de preferência</span>
+            <span {...bind("gift-color-dots")} className="gift-card-color-dots" aria-label="Cores de preferência">
+              {gift.colors.map((color, index) => (
+                <i
+                  {...bind("gift-color-dot")}
+                  key={`${color.hex}-${index}`}
+                  title={color.name || color.hex}
+                  aria-label={color.name || color.hex}
+                  style={{
+                    ...partStyleFromConfig(parts["gift-color-dot"]),
+                    backgroundColor: color.hex,
+                  }}
+                />
+              ))}
+            </span>
+          </div>
+        )}
+
         {error ? <p {...bind("gift-error")}>{error}</p> : null}
       </div>
     </article>

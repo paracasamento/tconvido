@@ -1,13 +1,12 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
-import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
-import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
-import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import { db } from "@/lib/db";
 import { requireGuest } from "@/lib/sessions";
 import { giftImageUrl } from "@/lib/storage";
 import { getPublicInvitePageData } from "@/lib/public-invite-data";
+import { inviteScreenBackgroundStyle } from "@/lib/invite-background-style";
 
 export default async function GiftsPage() {
   const session = await requireGuest("/presentes");
@@ -18,50 +17,46 @@ export default async function GiftsPage() {
 
   const sql = db();
 
-  /*
-   * EXISTS evita ambiguidades/duplicações dos LEFT JOINs e garante que
-   * "reserved_by_me" sempre tenha precedência para o convidado atual.
-   */
-  const rowsPromise = sql`
-    SELECT
-      g.id,
-      g.name,
-      g.description,
-      g.image_path,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM reservations mine
-          WHERE
-            mine.event_id = ${session.event_id}
-            AND mine.gift_id = g.id
-            AND mine.guest_id = ${session.guest_id}
-            AND mine.released_at IS NULL
-        ) THEN 'reserved_by_me'
-        WHEN EXISTS (
-          SELECT 1
-          FROM reservations taken
-          WHERE
-            taken.event_id = ${session.event_id}
-            AND taken.gift_id = g.id
-            AND taken.released_at IS NULL
-        ) THEN 'reserved'
-        ELSE 'available'
-      END AS status
-    FROM gifts g
-    WHERE
-      g.event_id = ${session.event_id}
-      AND g.deleted_at IS NULL
-      AND g.is_active = true
-    ORDER BY g.sort_order, g.created_at
-  `;
-
   const [rows, pageData] = await Promise.all([
-    rowsPromise,
-    getPublicInvitePageData("gifts", session.event_id),
+    sql`
+      SELECT
+        g.id,
+        g.name,
+        g.description,
+        g.image_path,
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM reservations mine
+            WHERE mine.event_id = ${session.event_id}
+              AND mine.gift_id = g.id
+              AND mine.guest_id = ${session.guest_id}
+              AND mine.released_at IS NULL
+          ) THEN 'reserved_by_me'
+          WHEN (
+            SELECT COUNT(*)
+            FROM reservations taken
+            WHERE taken.event_id = ${session.event_id}
+              AND taken.gift_id = g.id
+              AND taken.released_at IS NULL
+          ) >= g.available_quantity THEN 'reserved'
+          ELSE 'available'
+        END AS status
+      FROM gifts g
+      WHERE g.event_id = ${session.event_id}
+        AND g.deleted_at IS NULL
+        AND g.is_active = true
+      ORDER BY g.sort_order, g.created_at
+    `,
+    getPublicInvitePageData("gifts", session.event_id)
   ]);
+
   if (!pageData) return null;
   if (pageData.event.status !== "active") redirect("/acesso");
+
+  const colors = Array.isArray(pageData.event.gift_color_preferences)
+    ? pageData.event.gift_color_preferences
+    : [];
 
   const gifts: GiftUi[] = rows.map((row: any) => ({
     id: String(row.id),
@@ -72,47 +67,43 @@ export default async function GiftsPage() {
       row.status === "reserved_by_me" || row.status === "reserved"
         ? row.status
         : "available",
+    colors
   }));
 
-  const gridSlot = pageData.screen.elements.find(
-    element => element.slot === "gift-grid"
-  );
-  const noteSlot = pageData.screen.elements.find(
-    element => element.slot === "gift-note"
-  );
-
-  const grid = gifts.length ? (
-    <GiftGridView key="gift-grid" parts={gridSlot?.partStyles}>
-      <GiftColorPreferencesNotice colors={pageData.event.gift_color_preferences} />
-      {gifts.map(gift => (
-        <GiftCard
-          key={gift.id}
-          gift={gift}
-          parts={gridSlot?.partStyles}
-        />
-      ))}
-    </GiftGridView>
-  ) : (
-    <div key="gift-grid-empty" className="guest-state-card">
-      <h2>A lista ainda está sendo preparada.</h2>
-      <p>Volte em breve para conferir as sugestões.</p>
-    </div>
-  );
-
-  const note = (
-    <GiftNoteView
-      key="gift-note"
-      parts={noteSlot?.partStyles}
-    />
-  );
+  const gridSlot = pageData.screen.elements.find(element => element.slot === "gift-grid");
 
   return (
-    <InviteCanvas
-      screen={pageData.screen}
-      slots={{
-        "gift-grid": grid,
-        "gift-note": note,
-      }}
-    />
+    <main className="gift-full-list-page" style={inviteScreenBackgroundStyle(pageData.screen)}>
+      <div
+        className="gift-full-list-paper"
+        style={{ opacity: pageData.screen.paperOpacity ?? 0.55 }}
+        aria-hidden="true"
+      />
+      <div className="gift-full-list-content">
+        <header className="gift-full-list-header">
+          <Link href="/convite">← Voltar ao convite</Link>
+          <p>LISTA DE PRESENTES</p>
+          <h1>Escolha seus presentes</h1>
+          <span>Você pode escolher quantos itens quiser.</span>
+        </header>
+
+        {gifts.length ? (
+          <GiftGridView parts={gridSlot?.partStyles} naturalHeight>
+            {gifts.map(gift => (
+              <GiftCard key={gift.id} gift={gift} parts={gridSlot?.partStyles} />
+            ))}
+          </GiftGridView>
+        ) : (
+          <div className="guest-state-card">
+            <h2>A lista ainda está sendo preparada.</h2>
+            <p>Volte em breve para conferir as sugestões.</p>
+          </div>
+        )}
+
+        <Link className="gift-my-choices-link" href="/meu-presente">
+          Ver meus presentes
+        </Link>
+      </div>
+    </main>
   );
 }

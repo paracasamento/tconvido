@@ -7,7 +7,6 @@ import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { AccessFormView } from "@/components/invite/functional/AccessFormView";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
-import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
 import { RsvpFlowView, type RsvpPreviewState } from "@/components/invite/functional/RsvpFlowView";
 import {
@@ -58,7 +57,6 @@ function slotsFor(
     if (element.slot === "gift-grid") {
       slots[element.slot] = previewData.gifts.length ? (
         <GiftGridView key={element.id} parts={element.partStyles} preview>
-          <GiftColorPreferencesNotice colors={previewData.giftColorPreferences} />
           {previewData.gifts.map(gift => (
             <GiftCard
               key={gift.id}
@@ -67,6 +65,7 @@ function slotsFor(
               parts={element.partStyles}
             />
           ))}
+          <span className="gift-full-list-link gift-full-list-link--preview">VER LISTA COMPLETA</span>
         </GiftGridView>
       ) : (
         <div className="guest-state-card">

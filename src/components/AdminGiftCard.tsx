@@ -15,7 +15,8 @@ type Gift = {
   name: string;
   description: string | null;
   image_url: string | null;
-  status: "available" | "reserved";
+  available_quantity: number;
+  reserved_count: number;
 };
 
 export function AdminGiftCard({ gift }: { gift: Gift }) {
@@ -76,9 +77,11 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
         </div>
         <div className="admin-gift-list-item__copy">
           <strong>{gift.name}</strong>
-          {gift.status === "reserved" ? (
-            <span className="admin-gift-reserved-by">Reservado</span>
-          ) : null}
+          <span className="admin-gift-quantity-status">
+            {gift.reserved_count > 0
+              ? `${gift.reserved_count} de ${gift.available_quantity} escolhidos`
+              : `${gift.available_quantity} ${gift.available_quantity === 1 ? "unidade" : "unidades"}`}
+          </span>
           {gift.description && <small>{gift.description}</small>}
         </div>
         <button type="button" className="admin-row-menu" onClick={() => setEditing(true)} aria-label={`Editar ${gift.name}`}>
@@ -86,20 +89,27 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
         </button>
       </article>
 
-      <AdminSheet open={editing} title="Editar presente" description={
-          gift.status === "reserved"
-            ? "Este presente já foi escolhido. Você pode atualizar os dados, mas não removê-lo."
-            : "Atualize nome, descrição ou foto."
-        } onClose={() => !busy && setEditing(false)}>
+      <AdminSheet
+        open={editing}
+        title="Editar presente"
+        description={gift.reserved_count > 0
+          ? `Este item possui ${gift.reserved_count} ${gift.reserved_count === 1 ? "escolha ativa" : "escolhas ativas"}.`
+          : "Atualize nome, quantidade, descrição ou foto."}
+        onClose={() => !busy && setEditing(false)}
+      >
         <form className="admin-sheet-form" onSubmit={save}>
           <label className="admin-field"><span>Nome do presente</span><input name="name" defaultValue={gift.name} required /></label>
+          <label className="admin-field">
+            <span>Quantidade disponível</span>
+            <input name="available_quantity" type="number" min={Math.max(1, gift.reserved_count)} max={999} defaultValue={gift.available_quantity} required />
+          </label>
           <label className="admin-field"><span>Descrição</span><textarea name="description" defaultValue={gift.description || ""} rows={4} placeholder="Opcional" /></label>
           <label className="admin-field admin-file-field"><span>Trocar foto (até 4 MB)</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" /></label>
           {gift.image_url && <label className="check-row"><input type="checkbox" name="remove_image" value="1" /><span>Remover foto atual</span></label>}
           {message && <p className="form-error">{message}</p>}
           <div className="admin-sheet-form__actions">
             <button className="button button--primary" disabled={busy}>{busy ? "Salvando..." : "Salvar alterações"}</button>
-            {gift.status === "available" && <button type="button" className="button button--danger-ghost" onClick={() => setRemoveOpen(true)} disabled={busy}>Remover presente</button>}
+            {gift.reserved_count === 0 && <button type="button" className="button button--danger-ghost" onClick={() => setRemoveOpen(true)} disabled={busy}>Remover presente</button>}
           </div>
         </form>
       </AdminSheet>
@@ -107,7 +117,7 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
       <AppModal
         open={removeOpen}
         title={`Remover “${gift.name}”?`}
-        description="O presente sairá da lista. Essa ação só fica disponível enquanto ele não estiver reservado."
+        description="O presente sairá da lista. Essa ação só fica disponível enquanto ele não tiver escolhas ativas."
         confirmLabel="Remover presente"
         tone="danger"
         busy={busy}

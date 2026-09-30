@@ -2581,3 +2581,19 @@
     grid-column:1 / -1;
   }
 }
+
+
+/* Presentes v9 — cabeçalho legível e controle de estoque */
+.admin-gifts-page-v9 .admin-page-header{justify-content:space-between}
+.admin-gifts-page-v9 .admin-page-header__action{flex:0 0 auto}
+.admin-gifts-header-actions-v1{width:auto;display:flex;align-items:center;gap:10px}
+.admin-gift-confirmations-link-v1{min-width:190px;min-height:48px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:.78rem;white-space:nowrap}
+.admin-gift-quantity-status{display:inline-flex;align-items:center;justify-content:flex-end;color:#756d5f;font-size:.64rem;font-weight:750;line-height:1.25;white-space:nowrap}
+@media (max-width:520px){
+  .admin-gifts-page-v9.admin-management-page-v6 .admin-page-header{display:grid;grid-template-columns:1fr;align-items:start}
+  .admin-gifts-page-v9 .admin-page-header__action{width:100%}
+  .admin-gifts-page-v9 .admin-gifts-header-actions-v1{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:8px}
+  .admin-gifts-page-v9 .admin-gift-confirmations-link-v1{width:100%;min-width:0;height:46px;min-height:46px;padding:0 14px;font-size:.72rem;overflow:visible}
+  .admin-gifts-page-v9.admin-management-page-v6 .admin-page-header__action .admin-add-trigger{width:48px;height:46px;min-height:46px;padding:0;overflow:hidden;gap:0;font-size:0;border-radius:14px}
+  .admin-gifts-page-v9.admin-management-page-v6 .admin-page-header__action .admin-add-trigger svg{width:20px;height:20px}
+}

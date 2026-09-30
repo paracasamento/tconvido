@@ -9,7 +9,7 @@ export function GiftBulkForm({ value, count, busy, onChange }: { value: string; 
       </label>
       <div className="import-preview-line"><strong>{count}</strong> {count === 1 ? "item identificado" : "itens identificados"}</div>
       <button className="button button--primary" disabled={busy || !count}>{busy ? "Adicionando..." : `Adicionar ${count || ""} presentes`}</button>
-      <p className="access-mode-note">Os itens serão criados sem foto e descrição. Você pode completar depois.</p>
+      <p className="access-mode-note">Estes itens entram com quantidade 1. Você pode ajustar a quantidade de cada um ao editar.</p>
     </>
   );
 }

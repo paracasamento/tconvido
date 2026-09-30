@@ -5,11 +5,13 @@ import { useState } from "react";
 import { GuestActionModal } from "@/components/invite/functional/GuestActionModal";
 
 export function ReleaseGiftButton({
+  giftId,
   name,
   className = "button button--danger-ghost",
   label = "Liberar presente",
   redirectTo = "/convite",
 }: {
+  giftId: string;
   name: string;
   className?: string;
   label?: string;
@@ -23,9 +25,8 @@ export function ReleaseGiftButton({
   async function release() {
     setBusy(true);
     setError("");
-
     try {
-      const response = await fetch("/api/me/reservation", { method: "DELETE" });
+      const response = await fetch(`/api/me/reservation?gift_id=${encodeURIComponent(giftId)}`, { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -61,12 +62,9 @@ export function ReleaseGiftButton({
         open={open}
         mode={error ? "notice" : "confirm"}
         title={error ? "Não foi possível liberar" : `Liberar “${name}”?`}
-        description={
-          error ||
-          "Ao liberar, o presente voltará a ficar disponível para os outros convidados."
-        }
+        description={error || "Somente este presente voltará a ficar disponível para os outros convidados."}
         confirmLabel="Liberar presente"
-        cancelLabel="Manter reserva"
+        cancelLabel="Manter escolha"
         busy={busy}
         onConfirm={error ? undefined : release}
         onClose={() => !busy && setOpen(false)}

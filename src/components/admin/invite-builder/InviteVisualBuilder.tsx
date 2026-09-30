@@ -32,7 +32,6 @@ import { RsvpStatusView } from "@/components/invite/functional/RsvpStatusView";
 import { RsvpFlowView, type RsvpPreviewState } from "@/components/invite/functional/RsvpFlowView";
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
-import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { INVITE_ICON_OPTIONS } from "@/components/invite/InvitePartIcon";
@@ -916,11 +915,15 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
         "gift-image",
         "gift-content",
         "gift-title",
+        "gift-color-row",
+        "gift-color-label",
+        "gift-color-dots",
+        "gift-color-dot",
         "gift-error",
         ...(giftPreviewState==="reserved"
-          ? ["gift-card-reserved","gift-indicator-reserved"]
+          ? ["gift-card-reserved"]
           : giftPreviewState==="reserved_by_me"
-            ? ["gift-card-mine","gift-indicator-mine"]
+            ? ["gift-card-mine"]
             : [])
       ]);
       return all.filter(part=>allowed.has(part.id));
@@ -1879,7 +1882,6 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           selectedPart={selectedId===element.id ? selectedPart : null}
           onSelectPart={partId=>selectPart(element.id,partId)}
         >
-          <GiftColorPreferencesNotice colors={previewData.giftColorPreferences} />
           {previewData.gifts.map(gift=>(
             <GiftCard
               key={gift.id}
@@ -1890,6 +1892,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
               onSelectPart={partId=>selectPart(element.id,partId)}
             />
           ))}
+          <span className="gift-full-list-link gift-full-list-link--preview">VER LISTA COMPLETA</span>
         </GiftGridView>
       ) : (
         <div key={element.id} className="guest-state-card">
@@ -1949,10 +1952,10 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   if (passiveGiftGrid) {
     passiveGiftSlots["gift-grid"] = previewData.gifts.length ? (
       <GiftGridView key="passive-gift-grid" parts={passiveGiftGrid.partStyles} preview>
-        <GiftColorPreferencesNotice colors={previewData.giftColorPreferences} />
         {previewData.gifts.map(gift => (
           <GiftCard key={gift.id} gift={{...gift,status:giftPreviewState}} preview parts={passiveGiftGrid.partStyles} />
         ))}
+        <span className="gift-full-list-link gift-full-list-link--preview">VER LISTA COMPLETA</span>
       </GiftGridView>
     ) : (
       <div className="guest-state-card">

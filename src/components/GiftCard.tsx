@@ -6,22 +6,20 @@ import { GiftCardView } from "@/components/invite/functional/GiftCardView";
 import { GuestActionModal } from "@/components/invite/functional/GuestActionModal";
 import type { InvitePartStyle } from "@/lib/invite-builder";
 
+export type GiftColorPreference = { name: string; hex: string };
+
 export type GiftUi = {
   id: string;
   name: string;
   description: string | null;
   image_url: string | null;
   status: "available" | "reserved" | "reserved_by_me";
+  colors?: GiftColorPreference[];
 };
 
 type ModalState =
   | { open: false }
-  | {
-      open: true;
-      mode: "reserve" | "mine" | "existing" | "notice";
-      title: string;
-      description?: string;
-    };
+  | { open: true; mode: "reserve" | "mine" | "notice"; title: string; description?: string };
 
 export function GiftCard({
   gift,
@@ -41,55 +39,43 @@ export function GiftCard({
   const [localStatus, setLocalStatus] = useState<GiftUi["status"]>(gift.status);
   const [modal, setModal] = useState<ModalState>({ open: false });
 
-  useEffect(() => {
-    setLocalStatus(gift.status);
-  }, [gift.status]);
+  useEffect(() => setLocalStatus(gift.status), [gift.status]);
 
   const renderedGift: GiftUi = { ...gift, status: localStatus };
 
   function closeModal() {
-    if (busy) return;
-    setModal({ open: false });
+    if (!busy) setModal({ open: false });
   }
 
   function openReserveConfirmation() {
     if (preview || busy || localStatus !== "available") return;
-
     setModal({
       open: true,
       mode: "reserve",
       title: `Reservar “${gift.name}”?`,
-      description:
-        "Ao confirmar, este presente ficará reservado em seu nome e não poderá ser escolhido por outro convidado.",
+      description: "Você pode escolher mais de um presente. Esta escolha ficará registrada em seu nome.",
     });
   }
 
   function openMine() {
     if (preview || busy || localStatus !== "reserved_by_me") return;
-
     setModal({
       open: true,
       mode: "mine",
       title: gift.name,
-      description:
-        "Este é o presente que você escolheu. Se mudar de ideia, pode liberá-lo para outra pessoa.",
+      description: "Este presente está entre as suas escolhas. Se mudar de ideia, você pode liberar somente este item.",
     });
   }
 
   async function reserve() {
     if (preview || busy || localStatus !== "available") return;
-
     setBusy(true);
-
     try {
       const response = await fetch(`/api/gifts/${gift.id}/reserve`, {
         method: "POST",
         headers: { accept: "application/json" },
       });
-
-      const data = await response
-        .json()
-        .catch(() => ({ message: "Não foi possível concluir a reserva." }));
+      const data = await response.json().catch(() => ({ message: "Não foi possível concluir a reserva." }));
 
       if (!response.ok) {
         if (data?.code === "gift_taken") {
@@ -97,31 +83,11 @@ export function GiftCard({
           setModal({
             open: true,
             mode: "notice",
-            title: "Esse presente acabou de ser reservado",
-            description:
-              data.message || "Outro convidado escolheu este presente antes da sua confirmação.",
+            title: "Este presente ficou indisponível",
+            description: data.message || "As unidades disponíveis acabaram de ser escolhidas.",
           });
           return;
         }
-
-        if (data?.code === "guest_has_reservation") {
-          const currentName =
-            typeof data?.current_gift?.name === "string" && data.current_gift.name
-              ? data.current_gift.name
-              : "";
-
-          setModal({
-            open: true,
-            mode: "existing",
-            title: currentName
-              ? `Você já escolheu “${currentName}”`
-              : "Você já possui um presente escolhido",
-            description:
-              "Para trocar de presente, primeiro libere sua escolha atual.",
-          });
-          return;
-        }
-
         setModal({
           open: true,
           mode: "notice",
@@ -148,11 +114,9 @@ export function GiftCard({
 
   async function release() {
     if (preview || busy || localStatus !== "reserved_by_me") return;
-
     setBusy(true);
-
     try {
-      const response = await fetch("/api/me/reservation", { method: "DELETE" });
+      const response = await fetch(`/api/me/reservation?gift_id=${encodeURIComponent(gift.id)}`, { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -198,43 +162,18 @@ export function GiftCard({
         error=""
         onAction={action}
       />
-
       {!preview && modal.open ? (
         <GuestActionModal
           open
           mode={modal.mode === "notice" ? "notice" : "confirm"}
           title={modal.title}
           description={modal.description}
-          kicker={
-            modal.mode === "mine" || modal.mode === "existing"
-              ? "Sua escolha"
-              : "Lista de presentes"
-          }
-          confirmLabel={
-            modal.mode === "mine"
-              ? "Liberar escolha"
-              : modal.mode === "existing"
-                ? "Ver minha escolha"
-                : "Reservar presente"
-          }
-          cancelLabel={
-            modal.mode === "mine"
-              ? "Manter escolha"
-              : modal.mode === "existing"
-                ? "Continuar olhando"
-                : "Agora não"
-          }
+          kicker={modal.mode === "mine" ? "Sua escolha" : "Lista de presentes"}
+          confirmLabel={modal.mode === "mine" ? "Liberar este presente" : "Reservar presente"}
+          cancelLabel={modal.mode === "mine" ? "Manter escolha" : "Agora não"}
           confirmTone={modal.mode === "mine" ? "danger" : "primary"}
           busy={busy}
-          onConfirm={
-            modal.mode === "reserve"
-              ? reserve
-              : modal.mode === "mine"
-                ? release
-                : modal.mode === "existing"
-                  ? () => router.push("/meu-presente")
-                  : undefined
-          }
+          onConfirm={modal.mode === "reserve" ? reserve : modal.mode === "mine" ? release : undefined}
           onClose={closeModal}
         />
       ) : null}
