@@ -47,8 +47,8 @@ export default async function InvitationPage() {
 
   const { event } = pageData;
   const confirmed =
-    submission?.event_id === invite.event_id ||
-    (guestSession?.event_id === invite.event_id && guestSession.rsvp_status === "confirmed");
+    guestSession?.event_id === invite.event_id &&
+    guestSession.rsvp_status === "confirmed";
 
   const reservation =
     guestSession?.event_id === invite.event_id
@@ -58,18 +58,20 @@ export default async function InvitationPage() {
   const baseScreen = pageData.screen;
   const screen = {
     ...baseScreen,
-    elements: baseScreen.elements.map(element => {
-      if (element.id === "invite-rsvp" && confirmed) {
-        return { ...element, text: "PRESENÇA CONFIRMADA", href: "/presenca" };
-      }
-      if (element.id === "invite-gifts" && reservation) {
-        return { ...element, text: "VER MEU PRESENTE", href: "/meu-presente" };
-      }
-      if (element.id === "invite-gifts" && confirmed) {
-        return { ...element, text: "ESCOLHER PRESENTE", href: "/presentes" };
-      }
-      return element;
-    }),
+    elements: baseScreen.elements
+      .filter(element => element.id !== "invite-gifts" || confirmed)
+      .map(element => {
+        if (element.id === "invite-rsvp" && confirmed) {
+          return { ...element, text: "PRESENÇA CONFIRMADA", href: "/presenca" };
+        }
+        if (element.id === "invite-gifts" && reservation) {
+          return { ...element, text: "VER MEU PRESENTE", href: "/meu-presente" };
+        }
+        if (element.id === "invite-gifts" && confirmed) {
+          return { ...element, text: "ESCOLHER PRESENTE", href: "/presentes" };
+        }
+        return element;
+      }),
   };
   const countdownElement = screen.elements.find(
     element => element.slot === "countdown"
