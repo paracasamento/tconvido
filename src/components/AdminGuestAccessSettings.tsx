@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Copy, KeyRound, RefreshCw } from "lucide-react";
-import { AppModal } from "@/components/admin/AppModal";
+import { Copy, KeyRound, PencilLine, RefreshCw } from "lucide-react";
 import { readJsonResponse } from "@/lib/client-response";
 
 type AccessState = {
@@ -16,7 +15,8 @@ export function AdminGuestAccessSettings({ initialMode: _initialMode }: { initia
   const [state, setState] = useState<AccessState>({ mode: "event", configured: false });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [editingPassword, setEditingPassword] = useState(false);
+  const [passwordDraft, setPasswordDraft] = useState("");
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -35,24 +35,44 @@ export function AdminGuestAccessSettings({ initialMode: _initialMode }: { initia
 
   useEffect(() => { void load(); }, []);
 
-  async function createOrRotatePassword() {
+  function openPasswordEditor() {
+    setPasswordDraft(state.code || "");
+    setMessage("");
+    setEditingPassword(true);
+  }
+
+  async function savePassword(customCode?: string) {
+    const code = customCode?.trim();
+
+    if (customCode !== undefined && (!code || code.length < 5 || code.length > 40)) {
+      setMessage("A senha precisa ter entre 5 e 40 caracteres.");
+      return;
+    }
+
     setBusy(true);
     setMessage("");
+
     try {
       const response = await fetch("/api/admin/guest-access", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ mode: "event" }),
+        body: JSON.stringify({
+          mode: "event",
+          ...(code ? { code } : {}),
+        }),
       });
       const data = await readJsonResponse<{ message?: string; code?: string }>(response);
+
       if (!response.ok || !data.code) {
-        setMessage(data.message || "Não foi possível gerar a senha do evento.");
+        setMessage(data.message || "Não foi possível salvar a senha do evento.");
         return;
       }
+
       setState({ mode: "event", configured: true, code: data.code, recoverable: true });
-      setModalOpen(false);
+      setPasswordDraft(data.code);
+      setEditingPassword(false);
     } catch {
-      setMessage("Não foi possível gerar a senha do evento.");
+      setMessage("Não foi possível salvar a senha do evento.");
     } finally {
       setBusy(false);
     }
@@ -88,11 +108,70 @@ export function AdminGuestAccessSettings({ initialMode: _initialMode }: { initia
                 <Copy size={17} />
               </button>
             )}
-            <button type="button" className="icon-button" title={state.configured ? "Alterar senha" : "Criar senha"} aria-label={state.configured ? "Alterar senha" : "Criar senha"} onClick={() => setModalOpen(true)}>
-              <RefreshCw size={17} />
+            <button type="button" className="icon-button" title={state.configured ? "Personalizar senha" : "Criar senha"} aria-label={state.configured ? "Personalizar senha" : "Criar senha"} onClick={openPasswordEditor}>
+              <PencilLine size={17} />
             </button>
           </div>
         </div>
+
+        {editingPassword && (
+          <div className="event-password-editor-v8">
+            <div className="event-password-editor-v8__heading">
+              <strong>{state.configured ? "Personalizar senha" : "Criar senha"}</strong>
+              <span>Escolha uma senha fácil de compartilhar com os convidados.</span>
+            </div>
+
+            <label className="admin-field">
+              <span>Nova senha do convite</span>
+              <input
+                type="text"
+                value={passwordDraft}
+                minLength={5}
+                maxLength={40}
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="Ex.: PEDROELETICIA"
+                disabled={busy}
+                onChange={(event) => setPasswordDraft(event.target.value)}
+              />
+            </label>
+
+            <p className="event-password-editor-v8__hint">
+              De 5 a 40 caracteres. Maiúsculas e minúsculas não fazem diferença. Ao alterar a senha, as sessões atuais dos convidados serão encerradas.
+            </p>
+
+            <div className="event-password-editor-v8__actions">
+              <button
+                type="button"
+                className="button button--ghost"
+                disabled={busy}
+                onClick={() => {
+                  setEditingPassword(false);
+                  setMessage("");
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="button button--ghost"
+                disabled={busy}
+                onClick={() => void savePassword()}
+              >
+                <RefreshCw size={15} />
+                Gerar automática
+              </button>
+              <button
+                type="button"
+                className="button button--primary"
+                disabled={busy}
+                onClick={() => void savePassword(passwordDraft)}
+              >
+                {busy ? "Salvando..." : "Salvar senha"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <p className="access-helper access-helper-v7">
           Todos usam a mesma senha. O nome informado precisa existir na lista e, após o acesso, a sessão fica vinculada somente àquele convidado.
@@ -100,16 +179,6 @@ export function AdminGuestAccessSettings({ initialMode: _initialMode }: { initia
         {copied && <p className="form-success access-feedback-v7">Senha copiada.</p>}
         {message && <p className="form-error" role="alert">{message}</p>}
       </div>
-
-      <AppModal
-        open={modalOpen}
-        title={state.configured ? "Alterar a senha do evento?" : "Criar a senha do evento?"}
-        description="Ao gerar uma nova senha, as sessões atuais dos convidados serão encerradas. Cada novo acesso continuará vinculado ao nome escolhido na lista."
-        confirmLabel={state.configured ? "Alterar senha" : "Criar senha"}
-        busy={busy}
-        onConfirm={createOrRotatePassword}
-        onClose={() => !busy && setModalOpen(false)}
-      />
     </>
   );
 }

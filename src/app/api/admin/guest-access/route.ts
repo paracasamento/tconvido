@@ -10,7 +10,15 @@ import {
 } from "@/lib/security";
 import { getAdminSession } from "@/lib/sessions";
 
-const schema = z.object({ mode: z.literal("event") });
+const schema = z.object({
+  mode: z.literal("event"),
+  code: z
+    .string()
+    .trim()
+    .min(5, "A senha precisa ter pelo menos 5 caracteres.")
+    .max(40, "A senha pode ter no máximo 40 caracteres.")
+    .optional(),
+});
 
 export async function GET() {
   const session = await getAdminSession();
@@ -51,8 +59,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Modo de acesso inválido." }, { status: 400 });
   }
 
-  const code = createEventCode();
+  const code = parsed.data.code
+    ? parsed.data.code.replace(/\s+/g, " ").trim()
+    : createEventCode();
   const protectedCode = protectGuestCode(code);
+  const savedCode = revealGuestCode(protectedCode) || code.toUpperCase();
   const sql = db();
 
   await sql`
@@ -85,7 +96,8 @@ export async function POST(request: Request) {
     action: "guest_access_mode_event",
     entityType: "event",
     entityId: session.event_id,
+    metadata: { custom_password: Boolean(parsed.data.code) },
   });
 
-  return NextResponse.json({ mode: "event", code });
+  return NextResponse.json({ mode: "event", code: savedCode });
 }

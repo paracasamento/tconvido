@@ -2533,3 +2533,51 @@
     font-size:0;
   }
 }
+
+
+/* Personalização da senha única do convite */
+.event-password-editor-v8{
+  display:grid;
+  gap:11px;
+  padding:14px;
+  border:1px solid var(--admin-line);
+  border-radius:15px;
+  background:#fff;
+}
+.event-password-editor-v8__heading{
+  display:grid;
+  gap:3px;
+}
+.event-password-editor-v8__heading strong{
+  color:var(--admin-text);
+  font-size:.82rem;
+}
+.event-password-editor-v8__heading span,
+.event-password-editor-v8__hint{
+  color:var(--admin-muted);
+  font-size:.69rem;
+  line-height:1.4;
+}
+.event-password-editor-v8__hint{
+  margin:0;
+}
+.event-password-editor-v8__actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:7px;
+}
+.event-password-editor-v8__actions .button{
+  min-height:40px;
+  padding:0 13px;
+  font-size:.72rem;
+}
+@media (max-width:520px){
+  .event-password-editor-v8__actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .event-password-editor-v8__actions .button:last-child{
+    grid-column:1 / -1;
+  }
+}
