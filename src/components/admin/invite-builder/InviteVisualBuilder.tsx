@@ -291,6 +291,31 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   const screen=screenId==="rsvp"
     ? resolveRsvpScenarioScreen(config,rsvpPreviewState as RsvpScenarioId)
     : config.screens[screenId];
+
+  const inviteRuntimeScreen = useMemo(() => {
+    const base = config.screens.invite;
+    const after = inviteFlowState === "after";
+
+    return {
+      ...base,
+      elements: base.elements
+        .filter(element => {
+          if (element.id === "invite-gifts") return false;
+          if (after && element.id === "invite-rsvp") return false;
+          return true;
+        })
+        .map(element => {
+          if (!after && element.id === "invite-rsvp") {
+            return { ...element, x: (100 - element.width) / 2 };
+          }
+          return element;
+        }),
+    };
+  }, [config.screens.invite, inviteFlowState]);
+
+  const displayScreen = screenId === "invite" ? inviteRuntimeScreen : screen;
+  const layerElements = screenId === "invite" ? displayScreen.elements : screen.elements;
+
   const selected=useMemo(()=>screen.elements.find(e=>e.id===selectedId)||null,[screen,selectedId]);
   const activePart:InvitePartStyle=selectedPart
     ? (selected?.partStyles?.[selectedPart]||{})
