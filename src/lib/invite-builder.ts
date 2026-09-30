@@ -236,11 +236,17 @@ export type InviteSavedLayout = {
   elements: InviteElement[];
 };
 
+export type InviteFlowSettings = {
+  continuousBackground?: boolean;
+  backgroundSource?: "invite" | "gifts";
+};
+
 export type InviteVisualConfig = {
   version: 2;
   screens: Record<InviteScreenId, InviteScreen>;
   savedLayouts?: Record<string, InviteSavedLayout>;
   rsvpScenarios?: Record<RsvpScenarioId, InviteRsvpScenarioScreen>;
+  inviteFlow?: InviteFlowSettings;
 };
 
 export type LegacyInviteVisualConfigV1 = {
@@ -1247,6 +1253,10 @@ const countdownSlot = (
 export const defaultInviteVisualConfig: InviteVisualConfig = {
   version: 2,
   savedLayouts: {},
+  inviteFlow: {
+    continuousBackground: false,
+    backgroundSource: "invite",
+  },
   screens: {
     cover: { id:"cover", name:"Capa", backgroundColor:"#fbfaf5", minHeight:844, paperOpacity:.5, elements:[
       img("cover-floral-left","Floral superior esquerdo","/florals/floral-top-left.webp",-8,-5,47,37,1), img("cover-floral-right","Floral superior direito","/florals/floral-top-right.webp",61,-5,47,37,1), img("cover-monogram","Monograma","/brand/monograma-pl.png",36,12,28,18,3), img("cover-divider","Divisor floral","/florals/floral-divider.webp",17,31,66,12,2), text("cover-names","Nomes","PEDRO & LETÍCIA",10,43,80,7,24), text("cover-title","Título","Chá de Panela",7,50,86,10,43), img("cover-kitchen","Arranjo de cozinha","/florals/kitchen-arrangement.webp",8,60,84,30,2), text("cover-open","Instrução","DESLIZE PARA ABRIR\n⌃",15,91,70,7,13,5)
@@ -1715,11 +1725,19 @@ export function normalizeInviteVisualConfig(
     (config as InviteVisualConfig).rsvpScenarios
   );
 
+  const rawInviteFlow = (config as InviteVisualConfig).inviteFlow;
+
+  const inviteFlow: InviteFlowSettings = {
+    continuousBackground: rawInviteFlow?.continuousBackground === true,
+    backgroundSource: rawInviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+  };
+
   return {
     version: 2,
     screens,
     savedLayouts,
     rsvpScenarios,
+    inviteFlow,
   };
 }
 
