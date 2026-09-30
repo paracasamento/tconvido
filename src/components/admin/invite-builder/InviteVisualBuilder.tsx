@@ -8,7 +8,7 @@ import {
 
   AlignCenter, AlignLeft, AlignRight, Box, BringToFront, ChevronDown, Copy, Eye, EyeOff,
 
-  Grid3X3, ImagePlus, Layers3, Link2, Lock, MoveDown, MoveUp, Redo2, RotateCcw, Save,
+  ExternalLink, Grid3X3, ImagePlus, Layers3, Link2, Lock, MoveDown, MoveUp, Plus, Redo2, RotateCcw, Save,
 
   SendToBack, SlidersHorizontal, Trash2, Type, Undo2, Unlock, ZoomIn, ZoomOut
 
@@ -38,7 +38,15 @@ import styles from "./InviteVisualBuilder.module.css";
 
 
 
-const SCREEN_IDS: InviteScreenId[] = ["cover", "access", "invite", "rsvp", "gifts"];
+type EditorPageId = "cover" | "access" | "invite-flow" | "rsvp";
+type InviteFlowState = "before" | "after";
+
+const EDITOR_PAGES: Array<{ id: EditorPageId; label: string }> = [
+  { id: "cover", label: "Capa" },
+  { id: "access", label: "Login" },
+  { id: "invite-flow", label: "Convite completo" },
+  { id: "rsvp", label: "Presença" },
+];
 
 const RSVP_PREVIEW_STATES: { id: RsvpPreviewState; label: string; short: string }[] = [
   { id:"children-question", label:"1. Pergunta sobre filhos", short:"Filhos?" },
@@ -151,7 +159,12 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   // button in the editor while the public page receives the default visual style.
   const normalizedInitial=useMemo(()=>normalizeInviteVisualConfig(deep(initial)),[initial]);
 
-  const [config,setConfig]=useState(()=>deep(normalizedInitial)); const [screenId,setScreenId]=useState<InviteScreenId>("cover");
+  const [config,setConfig]=useState(()=>deep(normalizedInitial));
+  const [screenId,setScreenId]=useState<InviteScreenId>("cover");
+  const [editorPage,setEditorPage]=useState<EditorPageId>("cover");
+  const [inviteFlowState,setInviteFlowState]=useState<InviteFlowState>("before");
+  const [inviteSection,setInviteSection]=useState<"invite"|"gifts">("invite");
+  const [unitMode,setUnitMode]=useState<"px"|"pct">("px");
 
   const [selectedId,setSelectedId]=useState<string|null>(normalizedInitial.screens.cover.elements[0]?.id||null); const [selectedPart,setSelectedPart]=useState<string|null>(null);
   const [rsvpPreviewState,setRsvpPreviewState]=useState<RsvpPreviewState>("children-question");
@@ -709,7 +722,34 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
     setSelectedId(target||null);
   }
 
+  function switchEditorPage(id:EditorPageId){
+    setEditorPage(id);
+    setSelectedPart(null);
+
+    if(id==="cover"){ switchScreen("cover"); return; }
+    if(id==="access"){ switchScreen("access"); return; }
+    if(id==="rsvp"){ switchScreen("rsvp"); return; }
+
+    setInviteSection("invite");
+    switchScreen("invite");
+  }
+
+  function switchInviteSection(id:"invite"|"gifts"){
+    setInviteSection(id);
+    switchScreen(id);
+  }
+
+  function changeInviteFlowState(next:InviteFlowState){
+    setInviteFlowState(next);
+    if(next==="before" && inviteSection==="gifts"){
+      setInviteSection("invite");
+      switchScreen("invite");
+    }
+    setSelectedPart(null);
+  }
+
   function openRsvpScenario(state:RsvpPreviewState){
+    setEditorPage("rsvp");
     if(screenId!=="rsvp") setScreenId("rsvp");
     setRsvpPreviewState(state);
 
