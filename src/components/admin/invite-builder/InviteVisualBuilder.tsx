@@ -325,7 +325,9 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
     inviteFlowState === "after" &&
     continuousBackground;
   const sharedBackgroundScreen =
-    config.screens[continuousBackgroundSource];
+    continuousBackgroundSource === "gifts"
+      ? config.screens.gifts
+      : resolveInviteFlowScreen(config,"after");
 
   const displayScreen = screenId === "invite" ? inviteRuntimeScreen : screen;
   const layerElements = screenId === "invite" ? displayScreen.elements : screen.elements;
@@ -699,6 +701,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
     commit({
       ...current,
       inviteFlow:{
+        ...current.inviteFlow,
         continuousBackground: current.inviteFlow?.continuousBackground === true,
         backgroundSource: current.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
         ...patch,
@@ -710,12 +713,35 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
     if(sharedFlowBackgroundActive){
       const current=configRef.current;
       const sourceId=current.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite";
+
+      if(sourceId==="invite"){
+        const currentAfter =
+          current.inviteFlow?.afterInviteScreen ||
+          structuredClone(current.screens.invite);
+
+        commit({
+          ...current,
+          inviteFlow:{
+            ...current.inviteFlow,
+            continuousBackground:true,
+            backgroundSource:"invite",
+            afterInviteScreen:{
+              ...currentAfter,
+              ...patch,
+              id:"invite",
+              name:"Convite após confirmação",
+            },
+          },
+        },true);
+        return;
+      }
+
       commit({
         ...current,
         screens:{
           ...current.screens,
-          [sourceId]:{
-            ...current.screens[sourceId],
+          gifts:{
+            ...current.screens.gifts,
             ...patch,
           },
         },
