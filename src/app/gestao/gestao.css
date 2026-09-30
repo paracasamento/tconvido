@@ -1,0 +1,154 @@
+/* Technical owner area --------------------------------------------------- */
+.gestao-shell {
+  min-height: 100vh;
+  background: #f6f5f2;
+  color: #172039;
+}
+
+.gestao-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: 64px;
+  padding: 10px clamp(18px, 4vw, 40px);
+  border-bottom: 1px solid rgba(23,32,57,.08);
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.gestao-brand {
+  display: grid;
+  gap: 2px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.gestao-brand strong {
+  font-size: 15px;
+  line-height: 1.1;
+}
+
+.gestao-brand small {
+  color: #7b8190;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.gestao-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gestao-topbar-link,
+.gestao-logout {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(23,32,57,.10);
+  border-radius: 10px;
+  background: #fff;
+  color: #31394c;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  font: 700 11px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+
+.gestao-main {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0 64px;
+}
+
+.gestao-home {
+  display: grid;
+  gap: 30px;
+}
+
+.gestao-hero {
+  max-width: 680px;
+}
+
+.gestao-kicker {
+  margin: 0 0 8px;
+  color: #8b6c2b;
+  font: 800 10px/1.2 Arial, sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.gestao-hero h1 {
+  margin: 0;
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1;
+}
+
+.gestao-hero > p:last-child {
+  margin: 12px 0 0;
+  color: #6f7583;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.gestao-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px;
+}
+
+.gestao-card {
+  min-height: 140px;
+  padding: 20px;
+  border: 1px solid rgba(23,32,57,.09);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(28,34,51,.045);
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.gestao-card:hover {
+  border-color: rgba(18,48,142,.22);
+  box-shadow: 0 16px 36px rgba(28,34,51,.075);
+}
+
+.gestao-card-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: rgba(18,48,142,.07);
+  color: #12308e;
+  display: grid;
+  place-items: center;
+}
+
+.gestao-card div {
+  display: grid;
+  gap: 6px;
+}
+
+.gestao-card strong {
+  font-size: 15px;
+}
+
+.gestao-card small {
+  color: #7b8190;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .gestao-grid { grid-template-columns: 1fr; }
+  .gestao-topbar-link { display: none; }
+}

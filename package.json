@@ -1,0 +1,38 @@
+{
+  "name": "cha-panela-pedro-leticia",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
+    "admin:create": "node scripts/create-admin.mjs",
+    "admin:audit": "node scripts/audit-admin-roles.mjs",
+    "check:deploy": "node --env-file-if-exists=.env.local scripts/check-deploy.mjs",
+    "check:db": "node --env-file-if-exists=.env.local scripts/check-production-db.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
+    "@supabase/supabase-js": "^2.57.4",
+    "bcryptjs": "^3.0.2",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.5.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

@@ -1,0 +1,72 @@
+.flow{
+  width:100%;
+  min-height:0;
+  box-sizing:border-box;
+}
+
+.flow *,
+.flow *::before,
+.flow *::after{
+  box-sizing:border-box;
+}
+
+.flow button,
+.flow input{
+  font:inherit;
+  margin:0;
+}
+
+.flow button{
+  -webkit-appearance:none;
+  appearance:none;
+  padding:0;
+  cursor:pointer;
+}
+
+.flow input{
+  -webkit-appearance:none;
+  appearance:none;
+  outline:none;
+}
+
+.stack,.statusStack{
+  width:100%;
+  display:grid;
+  gap:14px;
+}
+
+.statusStack{
+  place-items:center;
+  text-align:center;
+}
+
+.choiceGrid{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+}
+
+.choiceGrid>button{
+  width:100%;
+}
+
+.fieldGroup,.childrenBlock{
+  width:100%;
+  display:grid;
+  gap:8px;
+}
+
+.stepper{
+  width:100%;
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr) 48px;
+  align-items:center;
+  gap:10px;
+}
+
+.stepper strong{text-align:center}
+.inlineError{margin:0;color:#9a2430;font-size:12px;text-align:center}
+.successIcon{display:grid;place-items:center;width:54px;height:54px;border-radius:999px}
+
+.errorRuntime{margin:0;font-size:12px;line-height:1.4;text-align:center;color:#9a2430}
