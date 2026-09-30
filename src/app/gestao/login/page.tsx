@@ -25,11 +25,12 @@ export default async function GestaoLoginPage({
         <Monogram size={88} priority />
         <p className="eyebrow">Área de gestão</p>
         <h1>Acesso administrativo</h1>
-        <p>Entre com sua conta de proprietária para acessar o editor e as ferramentas técnicas.</p>
+        <p>Entre com seu login de gestão para acessar o editor e as ferramentas técnicas.</p>
         <AdminLoginForm
           redirectTo={next}
           requiredRole="owner"
           endpoint="/api/owner/login"
+          allowUsername
         />
       </section>
     </main>
