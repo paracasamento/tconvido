@@ -56,6 +56,7 @@ export type InvitePartStyle = {
   letterSpacing?: number;
   display?: string;
   justifyContent?: string;
+  justifyItems?: string;
   alignItems?: string;
   gap?: number;
   flexDirection?: "row" | "column";
