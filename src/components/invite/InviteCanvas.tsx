@@ -17,6 +17,20 @@ function resolveText(
   );
 }
 
+export function inviteScreenBackgroundStyle(screen: InviteScreen): React.CSSProperties {
+  return {
+    backgroundColor: screen.backgroundColor,
+    backgroundImage: screen.useGradient
+      ? `linear-gradient(${screen.gradientAngle ?? 180}deg, ${screen.gradientFrom || "#fff"}, ${screen.gradientTo || "#eee"})`
+      : screen.backgroundImage
+        ? `url("${screen.backgroundImage}")`
+        : undefined,
+    backgroundSize: screen.backgroundSize || "cover",
+    backgroundRepeat: screen.backgroundRepeat || "no-repeat",
+    backgroundPosition: `${screen.backgroundPositionX ?? 50}% ${screen.backgroundPositionY ?? 50}%`,
+  };
+}
+
 export function InviteCanvas({
   screen,
   vars = {},
@@ -33,16 +47,8 @@ export function InviteCanvas({
   renderElementAdornment?: (element: InviteElement) => React.ReactNode;
 }) {
   const bg: React.CSSProperties = {
-    backgroundColor: screen.backgroundColor,
+    ...inviteScreenBackgroundStyle(screen),
     aspectRatio: `390 / ${screen.minHeight}`,
-    backgroundImage: screen.useGradient
-      ? `linear-gradient(${screen.gradientAngle ?? 180}deg, ${screen.gradientFrom || "#fff"}, ${screen.gradientTo || "#eee"})`
-      : screen.backgroundImage
-        ? `url("${screen.backgroundImage}")`
-        : undefined,
-    backgroundSize: screen.backgroundSize || "cover",
-    backgroundRepeat: screen.backgroundRepeat || "no-repeat",
-    backgroundPosition: `${screen.backgroundPositionX ?? 50}% ${screen.backgroundPositionY ?? 50}%`,
   };
 
   return (
