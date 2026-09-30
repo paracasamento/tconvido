@@ -2310,13 +2310,13 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                   </div>
                 )}
                 <p className={styles.hint}>
-                  Desligado: cada seção usa seu próprio fundo. Ligado: o fundo escolhido atravessa as duas seções como uma única página.
+                  Desligado: cada seção usa seu próprio fundo. Ligado: o fundo escolhido atravessa as duas seções como uma única página e remove a emenda visual entre elas.
                 </p>
               </div>
             )}
 
             <details open className={styles.screenSettings}>
-              <summary>Fundo da seção <ChevronDown size={14}/></summary>
+              <summary>{sharedFlowBackgroundActive ? "Fundo contínuo do fluxo" : "Fundo da seção"} <ChevronDown size={14}/></summary>
               <div className={styles.panel}>
                 <div className={styles.grid2}>
                   <label>
