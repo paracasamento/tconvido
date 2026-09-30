@@ -149,9 +149,14 @@ export default async function GestaoEditorPreviewPage({
       resolveRsvpScenarioScreen(config, rsvpState as RsvpScenarioId),
     ];
   } else {
+    const inviteBase =
+      state === "after" && config.inviteFlow?.afterInviteScreen
+        ? config.inviteFlow.afterInviteScreen
+        : config.screens.invite;
+
     const invite = {
-      ...config.screens.invite,
-      elements: config.screens.invite.elements
+      ...inviteBase,
+      elements: inviteBase.elements
         .filter(element => {
           if (element.id === "invite-gifts") return false;
           if (state === "after" && element.id === "invite-rsvp") return false;
