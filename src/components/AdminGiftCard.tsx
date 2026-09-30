@@ -16,6 +16,7 @@ type Gift = {
   description: string | null;
   image_url: string | null;
   status: "available" | "reserved";
+  reserved_by_name?: string | null;
 };
 
 export function AdminGiftCard({ gift }: { gift: Gift }) {
@@ -76,7 +77,11 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
         </div>
         <div className="admin-gift-list-item__copy">
           <strong>{gift.name}</strong>
-          <span className={`status status--${gift.status}`}>{gift.status === "reserved" ? "Reservado" : "Disponível"}</span>
+          {gift.status === "reserved" ? (
+            <span className="admin-gift-reserved-by">
+              Reservado{gift.reserved_by_name ? ` por ${gift.reserved_by_name}` : ""}
+            </span>
+          ) : null}
           {gift.description && <small>{gift.description}</small>}
         </div>
         <button type="button" className="admin-row-menu" onClick={() => setEditing(true)} aria-label={`Editar ${gift.name}`}>
@@ -84,7 +89,13 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
         </button>
       </article>
 
-      <AdminSheet open={editing} title="Editar presente" description={gift.status === "reserved" ? "Este presente já foi escolhido. Você pode atualizar os dados, mas não removê-lo." : "Atualize nome, descrição ou foto."} onClose={() => !busy && setEditing(false)}>
+      <AdminSheet open={editing} title="Editar presente" description={
+          gift.status === "reserved"
+            ? gift.reserved_by_name
+              ? `Reservado por ${gift.reserved_by_name}. Você pode atualizar os dados, mas não removê-lo.`
+              : "Este presente já foi escolhido. Você pode atualizar os dados, mas não removê-lo."
+            : "Atualize nome, descrição ou foto."
+        } onClose={() => !busy && setEditing(false)}>
         <form className="admin-sheet-form" onSubmit={save}>
           <label className="admin-field"><span>Nome do presente</span><input name="name" defaultValue={gift.name} required /></label>
           <label className="admin-field"><span>Descrição</span><textarea name="description" defaultValue={gift.description || ""} rows={4} placeholder="Opcional" /></label>
