@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
-import { CurrentReservationNotice } from "@/components/invite/functional/CurrentReservationNotice";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
 import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
@@ -54,29 +53,7 @@ export default async function GiftsPage() {
       g.event_id = ${session.event_id}
       AND g.deleted_at IS NULL
       AND g.is_active = true
-    ORDER BY
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM reservations mine_order
-          WHERE
-            mine_order.event_id = ${session.event_id}
-            AND mine_order.gift_id = g.id
-            AND mine_order.guest_id = ${session.guest_id}
-            AND mine_order.released_at IS NULL
-        ) THEN 0
-        WHEN EXISTS (
-          SELECT 1
-          FROM reservations taken_order
-          WHERE
-            taken_order.event_id = ${session.event_id}
-            AND taken_order.gift_id = g.id
-            AND taken_order.released_at IS NULL
-        ) THEN 2
-        ELSE 1
-      END,
-      g.sort_order,
-      g.created_at
+    ORDER BY g.sort_order, g.created_at
   `;
 
   const [rows, pageData] = await Promise.all([
@@ -85,14 +62,6 @@ export default async function GiftsPage() {
   ]);
   if (!pageData) return null;
   if (pageData.event.status !== "active") redirect("/acesso");
-
-  const mine = rows.find((row: any) => row.status === "reserved_by_me");
-  const currentReservation = mine
-    ? {
-        giftId: String(mine.id),
-        name: String(mine.name || "Presente"),
-      }
-    : null;
 
   const gifts: GiftUi[] = rows.map((row: any) => ({
     id: String(row.id),
@@ -138,18 +107,12 @@ export default async function GiftsPage() {
   );
 
   return (
-    <>
-      <InviteCanvas
-        screen={pageData.screen}
-        slots={{
-          "gift-grid": grid,
-          "gift-note": note,
-        }}
-      />
-
-      {currentReservation ? (
-        <CurrentReservationNotice giftName={currentReservation.name} />
-      ) : null}
-    </>
+    <InviteCanvas
+      screen={pageData.screen}
+      slots={{
+        "gift-grid": grid,
+        "gift-note": note,
+      }}
+    />
   );
 }
