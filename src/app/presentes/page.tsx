@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
 import { CurrentReservationNotice } from "@/components/invite/functional/CurrentReservationNotice";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
+import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
 import { db } from "@/lib/db";
@@ -113,6 +114,7 @@ export default async function GiftsPage() {
 
   const grid = gifts.length ? (
     <GiftGridView key="gift-grid" parts={gridSlot?.partStyles}>
+      <GiftColorPreferencesNotice colors={pageData.event.gift_color_preferences} />
       {gifts.map(gift => (
         <GiftCard
           key={gift.id}
