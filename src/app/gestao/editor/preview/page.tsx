@@ -22,7 +22,8 @@ import { requireOwner } from "@/lib/sessions";
 function slotsFor(
   screen: InviteScreen,
   previewData: Awaited<ReturnType<typeof getInviteEditorPreviewData>>,
-  rsvpState: RsvpPreviewState
+  rsvpState: RsvpPreviewState,
+  giftState: "available" | "reserved" | "reserved_by_me"
 ) {
   const slots: Record<string, ReactNode> = {};
 
@@ -61,7 +62,7 @@ function slotsFor(
           {previewData.gifts.map(gift => (
             <GiftCard
               key={gift.id}
-              gift={gift}
+              gift={{ ...gift, status: giftState }}
               preview
               parts={element.partStyles}
             />
@@ -110,6 +111,7 @@ export default async function GestaoEditorPreviewPage({
     page?: string;
     state?: string;
     rsvp?: string;
+    gift?: string;
   }>;
 }) {
   const session = await requireOwner("/gestao/editor/preview");
@@ -139,6 +141,13 @@ export default async function GestaoEditorPreviewPage({
   const rsvpState = allowedRsvp.includes(params.rsvp as RsvpPreviewState)
     ? (params.rsvp as RsvpPreviewState)
     : "children-question";
+
+  const giftState =
+    params.gift === "reserved"
+      ? "reserved"
+      : params.gift === "reserved_by_me"
+        ? "reserved_by_me"
+        : "available";
 
   let screens: InviteScreen[] = [];
 
@@ -249,7 +258,7 @@ export default async function GestaoEditorPreviewPage({
               key: `${screen.id}-${index}`,
               screen,
               vars: previewData.vars,
-              slots: slotsFor(screen, previewData, rsvpState),
+              slots: slotsFor(screen, previewData, rsvpState, giftState),
             }))}
           />
         ) : (
@@ -258,7 +267,7 @@ export default async function GestaoEditorPreviewPage({
               key={`${screen.id}-${index}`}
               screen={screen}
               vars={previewData.vars}
-              slots={slotsFor(screen, previewData, rsvpState)}
+              slots={slotsFor(screen, previewData, rsvpState, giftState)}
             />
           ))
         )}
