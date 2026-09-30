@@ -2355,3 +2355,100 @@
     grid-column: 2 / -1;
   }
 }
+
+
+/* Preferências gerais da lista de presentes */
+.gift-preferences-admin {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 15px;
+  border: 1px solid var(--admin-line);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.gift-preferences-admin__heading {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.gift-preferences-admin__icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--admin-brand);
+  background: var(--admin-brand-soft);
+}
+
+.gift-preferences-admin__heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.gift-preferences-admin__heading strong {
+  color: var(--admin-text);
+  font-size: .88rem;
+}
+
+.gift-preferences-admin__heading p {
+  margin: 0;
+  font-size: .7rem;
+  line-height: 1.4;
+}
+
+.gift-preferences-admin__list {
+  display: grid;
+  gap: 8px;
+}
+
+.gift-preferences-admin__row {
+  display: grid;
+  grid-template-columns: 48px minmax(0,1fr) 36px;
+  align-items: center;
+  gap: 8px;
+}
+
+.gift-preferences-admin__row input[type="color"] {
+  width: 48px;
+  height: 46px;
+  min-height: 46px;
+  padding: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.gift-preferences-admin__row button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: #f6eeee;
+  color: #a44a55;
+}
+
+.gift-preferences-admin__empty {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8f8f6;
+  font-size: .7rem;
+}
+
+.gift-preferences-admin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 520px) {
+  .gift-preferences-admin__actions .button {
+    flex: 1 1 145px;
+  }
+}
