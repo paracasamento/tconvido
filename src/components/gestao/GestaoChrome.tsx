@@ -6,7 +6,7 @@ import { ArrowLeft, LogOut } from "lucide-react";
 
 export function GestaoChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const fullScreen = pathname === "/gestao/login" || pathname === "/gestao/editor";
+  const fullScreen = pathname === "/gestao/login" || pathname.startsWith("/gestao/editor");
 
   if (fullScreen) return <>{children}</>;
 
