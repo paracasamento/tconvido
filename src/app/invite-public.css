@@ -2791,3 +2791,139 @@
   font-size: .6rem;
   line-height: 1.2;
 }
+
+
+/* Modal de ação dos presentes ------------------------------------------- */
+.guest-action-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  background: rgba(18, 24, 47, .46);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: giftActionBackdropIn .16s ease both;
+}
+
+.guest-action-modal {
+  position: relative;
+  width: min(100%, 390px);
+  padding: 30px 22px 22px;
+  display: grid;
+  gap: 20px;
+  border: 1px solid rgba(198,154,58,.58);
+  border-radius: 26px;
+  background: rgba(255,253,247,.99);
+  box-shadow: 0 28px 80px rgba(17,30,79,.26);
+  color: #12308e;
+  text-align: center;
+  animation: giftActionModalIn .22s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.guest-action-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #77726d;
+  cursor: pointer;
+}
+
+.guest-action-modal-copy {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.guest-action-modal-kicker {
+  color: #aa7b1d;
+  font: 800 9px/1.2 var(--font-body), Arial, sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.guest-action-modal-copy h2 {
+  margin: 0;
+  max-width: 320px;
+  color: #12308e;
+  font: 500 30px/1.02 var(--font-display), Georgia, serif;
+}
+
+.guest-action-modal-copy p {
+  max-width: 310px;
+  margin: 3px 0 0;
+  color: #69645f;
+  font: 500 16px/1.38 var(--font-display), Georgia, serif;
+}
+
+.guest-action-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.guest-action-modal-button {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font: 800 10px/1 var(--font-body), Arial, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.guest-action-modal-button:disabled {
+  opacity: .58;
+  cursor: default;
+}
+
+.guest-action-modal-button--ghost {
+  border: 1px solid rgba(198,154,58,.72);
+  background: transparent;
+  color: #12308e;
+}
+
+.guest-action-modal-button--primary {
+  border: 1px solid #12308e;
+  background: #12308e;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(18,48,142,.16);
+}
+
+.guest-action-modal-button--full {
+  grid-column: 1 / -1;
+}
+
+@keyframes giftActionBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes giftActionModalIn {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 430px) {
+  .guest-action-modal {
+    padding-inline: 18px;
+    border-radius: 22px;
+  }
+
+  .guest-action-modal-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .guest-action-modal-button--full {
+    grid-column: auto;
+  }
+}
