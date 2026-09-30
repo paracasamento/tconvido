@@ -67,3 +67,5 @@ O arquivo `sql-guest-access-modes.sql` documenta a extensão do schema usada pel
 O convite usa **uma senha única para todo o evento**. No login, o convidado informa o nome e a senha compartilhada. O nome precisa existir exatamente na lista de convidados (comparação normalizada, ignorando acentos/maiúsculas). Depois do acesso, a sessão fica vinculada ao `guest_id` encontrado e o RSVP não permite trocar de identidade nem criar outro convidado.
 
 O banco também garante uma confirmação por convidado e apenas uma sessão ativa por convidado.
+
+<!-- production-sync -->
