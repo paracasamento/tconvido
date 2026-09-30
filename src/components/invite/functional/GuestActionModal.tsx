@@ -98,7 +98,11 @@ export function GuestActionModal({
                 onClick={onConfirm}
                 disabled={busy}
               >
-                {busy ? "Reservando..." : confirmLabel}
+                {busy
+                  ? confirmTone === "danger"
+                    ? "Liberando..."
+                    : "Reservando..."
+                  : confirmLabel}
               </button>
             </>
           ) : (
