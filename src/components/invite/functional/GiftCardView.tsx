@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { CheckCircle2, Heart, LockKeyhole } from "lucide-react";
+import { Heart, LockKeyhole } from "lucide-react";
 import { Monogram } from "@/components/Monogram";
-import type { GiftColorPreference, GiftUi } from "@/components/GiftCard";
+import type { GiftUi } from "@/components/GiftCard";
 import type { InvitePartStyle } from "@/lib/invite-builder";
 import { partStyleFromConfig } from "@/components/invite/renderer/visual-style";
 
@@ -34,9 +34,7 @@ export function GiftCardView({
   onSelectPart,
   busy = false,
   error = "",
-  buttonLabel,
   onAction,
-  preferredColors=[],
 }: {
   gift: GiftUi;
   parts?: Record<string, InvitePartStyle>;
@@ -45,34 +43,16 @@ export function GiftCardView({
   onSelectPart?: (id: string) => void;
   busy?: boolean;
   error?: string;
-  buttonLabel?: string;
   onAction?: () => void;
-  preferredColors?: GiftColorPreference[];
 }) {
   const bind = makeBind(parts, preview, selectedPart, onSelectPart);
-
-  const statusPart =
-    gift.status === "available"
-      ? "gift-status-available"
-      : gift.status === "reserved_by_me"
-        ? "gift-status-mine"
-        : "gift-status-reserved";
-
-  const statusText =
-    gift.status === "available"
-      ? "Disponível"
-      : gift.status === "reserved_by_me"
-        ? "Escolhido por você"
-        : "Reservado";
-
-  const StatusIcon =
-    gift.status === "available"
-      ? CheckCircle2
-      : gift.status === "reserved_by_me"
-        ? Heart
-        : LockKeyhole;
-
   const interactive = !preview && gift.status !== "reserved" && Boolean(onAction);
+  const specialCardPart =
+    gift.status === "reserved_by_me"
+      ? "gift-card-mine"
+      : gift.status === "reserved"
+        ? "gift-card-reserved"
+        : null;
 
   function activateCard() {
     if (interactive && !busy) onAction?.();
@@ -86,12 +66,20 @@ export function GiftCardView({
     }
   }
 
+  const stateLabel =
+    gift.status === "reserved_by_me"
+      ? "Sua escolha"
+      : gift.status === "reserved"
+        ? "Presente já reservado"
+        : \`Escolher \${gift.name}\`;
+
   return (
     <article
       {...bind("gift-card")}
+      data-gift-status={gift.status}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
-      aria-label={interactive ? `${statusText}: ${gift.name}` : undefined}
+      aria-label={stateLabel}
       aria-disabled={busy || gift.status === "reserved" ? true : undefined}
       onClick={preview ? bind("gift-card").onClick : activateCard}
       onKeyDown={preview ? undefined : onKeyDown}
@@ -100,6 +88,7 @@ export function GiftCardView({
         overflow: "hidden",
         cursor: interactive ? "pointer" : undefined,
         ...partStyleFromConfig(parts["gift-card"]),
+        ...(specialCardPart ? partStyleFromConfig(parts[specialCardPart]) : {}),
       }}
     >
       <div
@@ -128,6 +117,28 @@ export function GiftCardView({
             <Monogram size={46} />
           </div>
         )}
+
+        {gift.status === "reserved" ? (
+          <span
+            {...bind("gift-indicator-reserved")}
+            className="gift-state-indicator"
+            aria-label="Reservado"
+            title="Reservado"
+          >
+            <LockKeyhole size={14} strokeWidth={1.8} aria-hidden />
+          </span>
+        ) : null}
+
+        {gift.status === "reserved_by_me" ? (
+          <span
+            {...bind("gift-indicator-mine")}
+            className="gift-state-indicator"
+            aria-label="Sua escolha"
+            title="Sua escolha"
+          >
+            <Heart size={14} strokeWidth={1.8} aria-hidden />
+          </span>
+        ) : null}
       </div>
 
       <div
@@ -138,42 +149,6 @@ export function GiftCardView({
         }}
       >
         <h3 {...bind("gift-title")}>{gift.name}</h3>
-
-        {preferredColors.length ? <div {...bind("gift-color-row")}>
-          <span {...bind("gift-color-label")}>Cor de preferência</span>
-          <span {...bind("gift-color-dots")}>
-            {preferredColors.map((color,index)=><i key={`${color.hex}-${index}`} {...bind("gift-color-dot")} title={color.name||color.hex} style={{...partStyleFromConfig(parts["gift-color-dot"]),backgroundColor:color.hex}} />)}
-          </span>
-        </div>:null}
-
-        <span
-          {...bind(statusPart)}
-          aria-label={statusText}
-        >
-          <StatusIcon size={15} strokeWidth={1.8} aria-hidden />
-          <span>{busy && gift.status === "available" ? "Reservando..." : statusText}</span>
-        </span>
-
-        {interactive ? (
-          <button
-            {...bind("gift-button")}
-            type="button"
-            disabled={busy}
-            onClick={event => {
-              event.stopPropagation();
-              activateCard();
-            }}
-          >
-            <span {...bind("gift-button-text")}>
-              {busy && gift.status === "available"
-                ? "Reservando..."
-                : gift.status === "reserved_by_me"
-                  ? "Ver meu presente"
-                  : buttonLabel || "Escolher presente"}
-            </span>
-          </button>
-        ) : null}
-
         {error ? <p {...bind("gift-error")}>{error}</p> : null}
       </div>
     </article>
