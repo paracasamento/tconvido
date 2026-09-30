@@ -224,24 +224,45 @@ export default async function InvitationPage() {
   };
 
   if (confirmed && giftsScreen && giftsSlots) {
+    const continuousBackground = pageData.inviteFlow?.continuousBackground === true;
+    const backgroundScreen =
+      pageData.inviteFlow?.backgroundSource === "gifts" ? giftsScreen : screen;
+
+    if (continuousBackground) {
+      return (
+        <InviteContinuousFlow
+          backgroundScreen={backgroundScreen}
+          sections={[
+            {
+              key: "invite",
+              screen,
+              vars: inviteVars,
+              slots: inviteSlots,
+            },
+            {
+              key: "gifts",
+              screen: giftsScreen,
+              vars: inviteVars,
+              slots: giftsSlots,
+            },
+          ]}
+        />
+      );
+    }
+
     return (
-      <InviteContinuousFlow
-        backgroundScreen={screen}
-        sections={[
-          {
-            key: "invite",
-            screen,
-            vars: inviteVars,
-            slots: inviteSlots,
-          },
-          {
-            key: "gifts",
-            screen: giftsScreen,
-            vars: inviteVars,
-            slots: giftsSlots,
-          },
-        ]}
-      />
+      <>
+        <InviteCanvas
+          screen={screen}
+          vars={inviteVars}
+          slots={inviteSlots}
+        />
+        <InviteCanvas
+          screen={giftsScreen}
+          vars={inviteVars}
+          slots={giftsSlots}
+        />
+      </>
     );
   }
 
