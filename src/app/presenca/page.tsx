@@ -31,7 +31,8 @@ export default async function RsvpPage() {
   let initialSubmission: CurrentRsvpSubmission | null = null;
   if (
     submissionSession?.event_id === invite.event_id &&
-    submissionSession.guest_id === guestSession.guest_id
+    submissionSession.guest_id === guestSession.guest_id &&
+    guestSession.rsvp_status === "confirmed"
   ) {
     initialSubmission = {
       id: submissionSession.submission_id,
