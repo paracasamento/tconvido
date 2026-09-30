@@ -32,6 +32,7 @@ import { RsvpStatusView } from "@/components/invite/functional/RsvpStatusView";
 import { RsvpFlowView, type RsvpPreviewState } from "@/components/invite/functional/RsvpFlowView";
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
+import { GiftColorPreferencesNotice } from "@/components/invite/functional/GiftColorPreferencesNotice";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { INVITE_ICON_OPTIONS } from "@/components/invite/InvitePartIcon";
@@ -1858,16 +1859,12 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           selectedPart={selectedId===element.id ? selectedPart : null}
           onSelectPart={partId=>selectPart(element.id,partId)}
         >
+          <GiftColorPreferencesNotice colors={previewData.giftColorPreferences} />
           {previewData.gifts.map(gift=>(
             <GiftCard
               key={gift.id}
               gift={gift}
               preview
-              preferredColors={[
-                {name:"Azul-marinho",hex:"#12308e"},
-                {name:"Dourado suave",hex:"#c69a3a"},
-                {name:"Branco",hex:"#f8f6ef"}
-              ]}
               parts={element.partStyles}
               selectedPart={selectedId===element.id ? selectedPart : null}
               onSelectPart={partId=>selectPart(element.id,partId)}
@@ -1932,6 +1929,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   if (passiveGiftGrid) {
     passiveGiftSlots["gift-grid"] = previewData.gifts.length ? (
       <GiftGridView key="passive-gift-grid" parts={passiveGiftGrid.partStyles} preview>
+        <GiftColorPreferencesNotice colors={previewData.giftColorPreferences} />
         {previewData.gifts.map(gift => (
           <GiftCard key={gift.id} gift={gift} preview parts={passiveGiftGrid.partStyles} />
         ))}
