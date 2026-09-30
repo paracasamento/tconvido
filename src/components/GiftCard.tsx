@@ -18,7 +18,7 @@ type ModalState =
   | { open: false }
   | {
       open: true;
-      mode: "reserve" | "mine" | "notice";
+      mode: "reserve" | "mine" | "existing" | "notice";
       title: string;
       description?: string;
     };
@@ -112,12 +112,12 @@ export function GiftCard({
 
           setModal({
             open: true,
-            mode: "notice",
+            mode: "existing",
             title: currentName
               ? `Você já escolheu “${currentName}”`
               : "Você já possui um presente escolhido",
             description:
-              "Libere sua escolha atual antes de reservar outro presente.",
+              "Para trocar de presente, primeiro libere sua escolha atual.",
           });
           return;
         }
@@ -205,9 +205,25 @@ export function GiftCard({
           mode={modal.mode === "notice" ? "notice" : "confirm"}
           title={modal.title}
           description={modal.description}
-          kicker={modal.mode === "mine" ? "Sua escolha" : "Lista de presentes"}
-          confirmLabel={modal.mode === "mine" ? "Liberar escolha" : "Reservar presente"}
-          cancelLabel={modal.mode === "mine" ? "Manter escolha" : "Agora não"}
+          kicker={
+            modal.mode === "mine" || modal.mode === "existing"
+              ? "Sua escolha"
+              : "Lista de presentes"
+          }
+          confirmLabel={
+            modal.mode === "mine"
+              ? "Liberar escolha"
+              : modal.mode === "existing"
+                ? "Ver minha escolha"
+                : "Reservar presente"
+          }
+          cancelLabel={
+            modal.mode === "mine"
+              ? "Manter escolha"
+              : modal.mode === "existing"
+                ? "Continuar olhando"
+                : "Agora não"
+          }
           confirmTone={modal.mode === "mine" ? "danger" : "primary"}
           busy={busy}
           onConfirm={
@@ -215,7 +231,9 @@ export function GiftCard({
               ? reserve
               : modal.mode === "mine"
                 ? release
-                : undefined
+                : modal.mode === "existing"
+                  ? () => router.push("/meu-presente")
+                  : undefined
           }
           onClose={closeModal}
         />
