@@ -2452,3 +2452,16 @@
     flex: 1 1 145px;
   }
 }
+
+
+/* Presentes — status útil, sem chip de disponível */
+.admin-gift-reserved-by{
+  display:inline-flex;
+  align-items:center;
+  width:fit-content;
+  max-width:100%;
+  color:#8c6628;
+  font-size:.64rem;
+  font-weight:750;
+  line-height:1.25;
+}
