@@ -34,6 +34,7 @@ export function GiftCardView({
   onSelectPart,
   busy = false,
   error = "",
+  buttonLabel,
   onAction,
   preferredColors=[],
 }: {
@@ -152,6 +153,26 @@ export function GiftCardView({
           <StatusIcon size={15} strokeWidth={1.8} aria-hidden />
           <span>{busy && gift.status === "available" ? "Reservando..." : statusText}</span>
         </span>
+
+        {interactive ? (
+          <button
+            {...bind("gift-button")}
+            type="button"
+            disabled={busy}
+            onClick={event => {
+              event.stopPropagation();
+              activateCard();
+            }}
+          >
+            <span {...bind("gift-button-text")}>
+              {busy && gift.status === "available"
+                ? "Reservando..."
+                : gift.status === "reserved_by_me"
+                  ? "Ver meu presente"
+                  : buttonLabel || "Escolher presente"}
+            </span>
+          </button>
+        ) : null}
 
         {error ? <p {...bind("gift-error")}>{error}</p> : null}
       </div>
