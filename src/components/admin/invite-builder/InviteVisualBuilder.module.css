@@ -1528,3 +1528,46 @@
   padding:0;
   border-radius:6px;
 }
+
+
+/* Preview de estados dos presentes */
+.giftPreviewStates{
+  display:grid;
+  gap:7px;
+  padding:9px;
+  border:1px solid rgba(18,48,142,.12);
+  border-radius:10px;
+  background:#fff;
+}
+.giftPreviewStates>div:first-child{
+  display:grid;
+  gap:1px;
+}
+.giftPreviewStates strong{
+  color:#27324d;
+  font-size:9.5px;
+}
+.giftPreviewStates small{
+  color:#858b98;
+  font-size:8px;
+}
+.giftPreviewStateButtons{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:5px;
+}
+.giftPreviewStateButtons button{
+  min-height:29px;
+  padding:0 5px;
+  border:1px solid #e2e6ed;
+  border-radius:7px;
+  background:#f8f9fb;
+  color:#687083;
+  font-size:8px;
+  font-weight:700;
+}
+.giftPreviewStateButtons .giftPreviewStateActive{
+  border-color:#12308e;
+  background:#eef2ff;
+  color:#12308e;
+}
