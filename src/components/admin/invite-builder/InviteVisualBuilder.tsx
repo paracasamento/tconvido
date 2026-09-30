@@ -1620,7 +1620,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
 
 
-  const screenBg:any={backgroundColor:screen.backgroundColor,backgroundImage:screen.useGradient?`linear-gradient(${screen.gradientAngle??180}deg,${screen.gradientFrom||"#fff"},${screen.gradientTo||"#eee"})`:screen.backgroundImage?`url("${screen.backgroundImage}")`:undefined,backgroundSize:screen.backgroundSize||"cover",backgroundRepeat:screen.backgroundRepeat||"no-repeat",backgroundPosition:`${screen.backgroundPositionX??50}% ${screen.backgroundPositionY??50}%`};
+  const screenBg:any={backgroundColor:displayScreen.backgroundColor,backgroundImage:displayScreen.useGradient?`linear-gradient(${displayScreen.gradientAngle??180}deg,${displayScreen.gradientFrom||"#fff"},${displayScreen.gradientTo||"#eee"})`:displayScreen.backgroundImage?`url("${displayScreen.backgroundImage}")`:undefined,backgroundSize:displayScreen.backgroundSize||"cover",backgroundRepeat:displayScreen.backgroundRepeat||"no-repeat",backgroundPosition:`${displayScreen.backgroundPositionX??50}% ${displayScreen.backgroundPositionY??50}%`};
 
   const rulerX=Array.from({length:Math.floor(CANVAS_W/10)+1},(_,i)=>i*10);
   const rulerY=Array.from({length:Math.floor(CANVAS_H/10)+1},(_,i)=>i*10);
@@ -1757,6 +1757,44 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
     editorSlots[element.slot] = (
       <SlotPreview key={element.id} el={element} />
+    );
+  }
+
+  const passiveInviteSlots: Record<string, React.ReactNode> = {};
+  const passiveInviteCountdown = inviteRuntimeScreen.elements.find(element => element.slot === "countdown");
+  if (passiveInviteCountdown) {
+    passiveInviteSlots.countdown = (
+      <CountdownView
+        key="passive-invite-countdown"
+        target={previewData.vars.event_datetime || "2026-11-22T16:00:00-03:00"}
+        parts={passiveInviteCountdown.partStyles}
+      />
+    );
+  }
+
+  const giftsPreviewScreen = config.screens.gifts;
+  const passiveGiftSlots: Record<string, React.ReactNode> = {};
+  const passiveGiftGrid = giftsPreviewScreen.elements.find(element => element.slot === "gift-grid");
+  const passiveGiftNote = giftsPreviewScreen.elements.find(element => element.slot === "gift-note");
+
+  if (passiveGiftGrid) {
+    passiveGiftSlots["gift-grid"] = previewData.gifts.length ? (
+      <GiftGridView key="passive-gift-grid" parts={passiveGiftGrid.partStyles} preview>
+        {previewData.gifts.map(gift => (
+          <GiftCard key={gift.id} gift={gift} preview parts={passiveGiftGrid.partStyles} />
+        ))}
+      </GiftGridView>
+    ) : (
+      <div className="guest-state-card">
+        <h2>A lista ainda está sendo preparada.</h2>
+        <p>Volte em breve para conferir as sugestões.</p>
+      </div>
+    );
+  }
+
+  if (passiveGiftNote) {
+    passiveGiftSlots["gift-note"] = (
+      <GiftNoteView key="passive-gift-note" parts={passiveGiftNote.partStyles} preview />
     );
   }
 
