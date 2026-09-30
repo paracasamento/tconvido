@@ -2515,7 +2515,51 @@
 
 /* Visual invitation builder output */
 
-.visual-invite-screen{position:relative;width:min(100vw,430px);margin:0 auto;overflow:hidden;min-height:0;height:auto;background:#fbfaf5}.visual-paper{position:absolute;inset:0;background:url('/florals/floral-white-background.webp') center/cover no-repeat;opacity:.55;pointer-events:none}.visual-element{text-decoration:none}.visual-text,.visual-link{padding:2px}.visual-image img{pointer-events:none}.visual-slot{overflow:visible!important}.visual-invite-cover{cursor:pointer}.visual-invite-cover .visual-element{pointer-events:none}@media(min-width:431px){body:has(.visual-invite-screen){background:#edeae3}.visual-invite-screen{box-shadow:0 0 50px rgba(25,24,30,.12)}}
+.visual-invite-screen{position:relative;width:min(100vw,430px);margin:0 auto;overflow:hidden;min-height:0;height:auto;background:#fbfaf5}.visual-paper{position:absolute;inset:0;background:url('/florals/floral-white-background.webp') center/cover no-repeat;opacity:.55;pointer-events:none}.visual-element{text-decoration:none}.visual-text,.visual-link{padding:2px}.visual-image img{pointer-events:none}.visual-slot{overflow:visible!important}.visual-invite-cover{cursor:grab}.visual-invite-cover .visual-element{pointer-events:none}
+
+.invite-entry-stack{
+  position:relative;
+  width:min(100vw,430px);
+  margin:0 auto;
+  overflow:hidden;
+  background:#fbfaf5;
+  overscroll-behavior:none;
+}
+
+.invite-entry-access{
+  position:relative;
+  z-index:1;
+}
+
+.invite-entry-cover{
+  position:absolute;
+  inset:0 0 auto;
+  z-index:10;
+  width:100%;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  will-change:transform;
+  transition:transform .28s cubic-bezier(.22,.72,.25,1);
+}
+
+.invite-entry-cover:active{
+  cursor:grabbing;
+}
+
+.invite-entry-cover.is-opening{
+  transition-duration:.42s;
+  transition-timing-function:cubic-bezier(.2,.78,.2,1);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .invite-entry-cover,
+  .invite-entry-cover.is-opening{
+    transition-duration:.01ms;
+  }
+}
+
+@media(min-width:431px){body:has(.visual-invite-screen){background:#edeae3}.visual-invite-screen{box-shadow:0 0 50px rgba(25,24,30,.12)}}
 
 
 
