@@ -2,6 +2,7 @@ import { UsersRound } from "lucide-react";
 import { AdminGuestCreate } from "@/components/AdminGuestCreate";
 import { AdminGuestRow } from "@/components/AdminGuestRow";
 import { RsvpSubmissionReview } from "@/components/admin/guests/RsvpSubmissionReview";
+import { GuestAccessAttemptReview } from "@/components/admin/guests/GuestAccessAttemptReview";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/sessions";
@@ -9,7 +10,7 @@ import { requireAdmin } from "@/lib/sessions";
 export default async function AdminGuestsPage() {
   const session = await requireAdmin("/admin/convidados");
   const sql = db();
-  const [guestsResult, eventRowsResult, submissionRowsResult, statsRowsResult] = await Promise.all([
+  const [guestsResult, eventRowsResult, submissionRowsResult, statsRowsResult, accessAttemptRowsResult] = await Promise.all([
     sql`
       SELECT
         g.id,
@@ -56,10 +57,30 @@ export default async function AdminGuestsPage() {
         count(*) FILTER (WHERE needs_review)::int AS review_count
       FROM rsvp_submissions
       WHERE event_id = ${session.event_id}
+    `,
+    sql`
+      SELECT
+        a.id,
+        a.submitted_name,
+        a.attempt_count,
+        a.last_attempt_at
+      FROM guest_access_attempts a
+      WHERE a.event_id = ${session.event_id}
+        AND a.status = 'pending'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM guests g
+          WHERE g.event_id = a.event_id
+            AND g.normalized_name = a.normalized_name
+            AND g.deleted_at IS NULL
+        )
+      ORDER BY a.last_attempt_at DESC
+      LIMIT 50
     `
   ]);
   const guests = guestsResult as any[];
   const submissions = submissionRowsResult as any[];
+  const accessAttempts = accessAttemptRowsResult as any[];
   const stats = (statsRowsResult[0] as any) || { confirmations: 0, children: 0, review_count: 0 };
   const eventRows = eventRowsResult as Array<{ guest_access_mode?: "event" | "individual" | null }>;
   const accessMode = eventRows[0]?.guest_access_mode || "individual";
@@ -83,9 +104,33 @@ export default async function AdminGuestsPage() {
         </div>
         <div>
           <strong>{stats.review_count}</strong>
-          <span>Para revisar</span>
+          <span>RSVP para revisar</span>
+        </div>
+        <div className={accessAttempts.length ? "is-attention" : undefined}>
+          <strong>{accessAttempts.length}</strong>
+          <span>Acessos pendentes</span>
         </div>
       </section>
+
+      {accessAttempts.length > 0 && (
+        <section className="admin-access-attempts-v9">
+          <div className="admin-access-attempts-v9__heading">
+            <div>
+              <strong>Tentativas de acesso</strong>
+              <span>
+                Estas pessoas tinham a senha do convite, mas o nome informado não estava na sua lista.
+              </span>
+            </div>
+            <b>{accessAttempts.length}</b>
+          </div>
+
+          <div className="admin-access-attempts-v9__list">
+            {accessAttempts.map(attempt => (
+              <GuestAccessAttemptReview key={attempt.id} attempt={attempt} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {submissions.length > 0 && (
         <section className="admin-list-section-v6" style={{ marginBottom: 16 }}>
