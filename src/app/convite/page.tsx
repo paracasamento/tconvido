@@ -1,5 +1,6 @@
 import { GiftCard, type GiftUi } from "@/components/GiftCard";
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
+import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { CountdownView } from "@/components/invite/functional/CountdownView";
 import { GiftGridView } from "@/components/invite/functional/GiftGridView";
 import { GiftNoteView } from "@/components/invite/functional/GiftNoteView";
@@ -80,7 +81,8 @@ export default async function InvitationPage() {
   const target = `${event.event_date}T${event.event_time}:00-03:00`;
   const countdownInitialNow = Date.now();
 
-  let giftsSection: React.ReactNode = null;
+  let giftsScreen: Awaited<ReturnType<typeof getPublicInvitePageData>>["screen"] | null = null;
+  let giftsSlots: Record<string, React.ReactNode> | null = null;
 
   if (confirmed && guestSession) {
     const sql = db();
@@ -180,55 +182,73 @@ export default async function InvitationPage() {
         </div>
       );
 
-      giftsSection = (
-        <InviteCanvas
-          screen={giftsPageData.screen}
-          slots={{
-            "gift-grid": grid,
-            "gift-note": (
-              <GiftNoteView
-                key="gift-note"
-                parts={noteSlot?.partStyles}
-              />
-            ),
-          }}
-        />
-      );
+      giftsScreen = giftsPageData.screen;
+      giftsSlots = {
+        "gift-grid": grid,
+        "gift-note": (
+          <GiftNoteView
+            key="gift-note"
+            parts={noteSlot?.partStyles}
+          />
+        ),
+      };
     }
   }
 
-  return (
-    <>
-      <InviteCanvas
-        screen={screen}
-        vars={{
-          couple_names: event.couple_names,
-          title: event.title,
-          intro: event.public_intro,
-          date: displayDate(event.event_date),
-          time: compactTime(event.event_time),
-          venue: event.venue,
-          city: event.city,
-          city_suffix: event.city ? `, ${event.city}` : "",
-          maps_url: event.maps_url || fallbackMapsUrl,
-          weekday: parts.weekday,
-          day: parts.day,
-          month: parts.month,
-          year: parts.year,
-        }}
-        slots={{
-          countdown: (
-            <CountdownView
-              key="invite-countdown-slot"
-              target={target}
-              initialNow={countdownInitialNow}
-              parts={countdownElement?.partStyles}
-            />
-          ),
-        }}
-      />
+  const inviteVars = {
+    couple_names: event.couple_names,
+    title: event.title,
+    intro: event.public_intro,
+    date: displayDate(event.event_date),
+    time: compactTime(event.event_time),
+    venue: event.venue,
+    city: event.city,
+    city_suffix: event.city ? `, ${event.city}` : "",
+    maps_url: event.maps_url || fallbackMapsUrl,
+    weekday: parts.weekday,
+    day: parts.day,
+    month: parts.month,
+    year: parts.year,
+  };
 
-      {giftsSection}
-    </>
+  const inviteSlots = {
+    countdown: (
+      <CountdownView
+        key="invite-countdown-slot"
+        target={target}
+        initialNow={countdownInitialNow}
+        parts={countdownElement?.partStyles}
+      />
+    ),
+  };
+
+  if (confirmed && giftsScreen && giftsSlots) {
+    return (
+      <InviteContinuousFlow
+        backgroundScreen={screen}
+        sections={[
+          {
+            key: "invite",
+            screen,
+            vars: inviteVars,
+            slots: inviteSlots,
+          },
+          {
+            key: "gifts",
+            screen: giftsScreen,
+            vars: inviteVars,
+            slots: giftsSlots,
+          },
+        ]}
+      />
+    );
+  }
+
+  return (
+    <InviteCanvas
+      screen={screen}
+      vars={inviteVars}
+      slots={inviteSlots}
+    />
   );
 }
