@@ -24,6 +24,7 @@ import {
 } from "@/lib/invite-builder";
 
 import { InviteCanvas } from "@/components/invite/InviteCanvas";
+import { InviteContinuousFlow } from "@/components/invite/InviteContinuousFlow";
 import { AccessFormView } from "@/components/invite/functional/AccessFormView";
 import { RsvpControlsView } from "@/components/invite/functional/RsvpControlsView";
 import { RsvpStatusView } from "@/components/invite/functional/RsvpStatusView";
@@ -312,6 +313,16 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
         }),
     };
   }, [config.screens.invite, inviteFlowState]);
+
+  const continuousBackground = config.inviteFlow?.continuousBackground === true;
+  const continuousBackgroundSource =
+    config.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite";
+  const sharedFlowBackgroundActive =
+    editorPage === "invite-flow" &&
+    inviteFlowState === "after" &&
+    continuousBackground;
+  const sharedBackgroundScreen =
+    config.screens[continuousBackgroundSource];
 
   const displayScreen = screenId === "invite" ? inviteRuntimeScreen : screen;
   const layerElements = screenId === "invite" ? displayScreen.elements : screen.elements;
@@ -652,6 +663,38 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
         }
       }
     },remember);
+  }
+
+  function updateInviteFlow(patch:Partial<NonNullable<InviteVisualConfig["inviteFlow"]>>){
+    const current=configRef.current;
+    commit({
+      ...current,
+      inviteFlow:{
+        continuousBackground: current.inviteFlow?.continuousBackground === true,
+        backgroundSource: current.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+        ...patch,
+      },
+    },true);
+  }
+
+  function updateBackgroundStyle(patch:Partial<InviteScreen>){
+    if(sharedFlowBackgroundActive){
+      const current=configRef.current;
+      const sourceId=current.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite";
+      commit({
+        ...current,
+        screens:{
+          ...current.screens,
+          [sourceId]:{
+            ...current.screens[sourceId],
+            ...patch,
+          },
+        },
+      },true);
+      return;
+    }
+
+    updateScreen(patch,true);
   }
 
   function updateElement(id:string,patch:Partial<InviteElement>,remember=false){
@@ -1131,7 +1174,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       const imageUrl=await uploadEditorImage(file);
 
       if(target==="screen"){
-        updateScreen({backgroundImage:imageUrl,useGradient:false},true);
+        updateBackgroundStyle({backgroundImage:imageUrl,useGradient:false});
       }else if(target==="part"&&selectedPart){
         mutatePart(selectedPart,{backgroundImage:imageUrl});
       }else if(selected){
@@ -1156,6 +1199,36 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       idleSaveTimerRef.current=null;
     }
     await persistConfig(true);
+  }
+
+  async function openPreview(){
+    const href=`/gestao/editor/preview?page=${editorPage}&state=${inviteFlowState}&rsvp=${rsvpPreviewState}`;
+    const previewWindow=window.open("about:blank","_blank");
+
+    if(previewWindow){
+      try{previewWindow.opener=null}catch{}
+      previewWindow.document.title="Carregando preview...";
+      previewWindow.document.body.innerHTML="<p style='font-family:Arial,sans-serif;padding:24px'>Salvando alterações e preparando preview...</p>";
+    }
+
+    if(idleSaveTimerRef.current){
+      clearTimeout(idleSaveTimerRef.current);
+      idleSaveTimerRef.current=null;
+    }
+
+    await persistConfig(true);
+
+    if(dirtyVersionRef.current!==savedVersionRef.current){
+      previewWindow?.close();
+      setStatus("O preview não foi aberto porque ainda existem alterações sem salvar.");
+      return;
+    }
+
+    if(previewWindow){
+      previewWindow.location.replace(href);
+    }else{
+      window.open(href,"_blank","noopener,noreferrer");
+    }
   }
 
   useEffect(()=>{
@@ -1824,7 +1897,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       <span className={styles.zoom}>{Math.round(zoom*100)}%</span>
       <button onClick={()=>setZoom(z=>clamp(z+.1,.45,1.6))}><ZoomIn size={16}/></button>
       <span className={styles.sep}/>
-      <a className={styles.previewLink} href={`/gestao/editor/preview?page=${editorPage}&state=${inviteFlowState}&rsvp=${rsvpPreviewState}`} target="_blank" rel="noreferrer"><ExternalLink size={15}/> Preview</a>
+      <button type="button" className={styles.previewLink} onClick={openPreview} disabled={saving}><ExternalLink size={15}/> Preview</button>
       <button onClick={resetScreen}><RotateCcw size={16}/> Restaurar seção</button>
       <button className={styles.save} onClick={save} disabled={saving}><Save size={16}/>{saving?"Salvando...":"Salvar"}</button>
 
@@ -1844,6 +1917,32 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
               <button type="button" className={inviteFlowState==="before"?styles.flowStateActive:""} onClick={()=>changeInviteFlowState("before")}>Antes da confirmação</button>
               <button type="button" className={inviteFlowState==="after"?styles.flowStateActive:""} onClick={()=>changeInviteFlowState("after")}>Após confirmação</button>
             </div>
+
+            {inviteFlowState==="after"&&(
+              <div className={styles.flowBackgroundControl}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={continuousBackground}
+                    onChange={e=>updateInviteFlow({continuousBackground:e.target.checked})}
+                  />
+                  <span><strong>Fundo contínuo</strong><small>Une Convite + Presentes sem reiniciar o fundo na emenda.</small></span>
+                </label>
+
+                {continuousBackground&&(
+                  <label className={styles.flowBackgroundSource}>
+                    Fundo-base
+                    <select
+                      value={continuousBackgroundSource}
+                      onChange={e=>updateInviteFlow({backgroundSource:e.target.value as "invite"|"gifts"})}
+                    >
+                      <option value="invite">Convite</option>
+                      <option value="gifts">Lista de presentes</option>
+                    </select>
+                  </label>
+                )}
+              </div>
+            )}
 
             <div className={styles.leftHeading}>Seções</div>
             <div className={styles.sectionNavigator}>
@@ -2145,8 +2244,47 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
         {inspectorMode === "screen" ? (
           <>
             <div className={styles.inspectorIntro}>
-              Fundo e configurações da seção ativa. Ferramentas de precisão ficam recolhidas abaixo.
+              {sharedFlowBackgroundActive
+                ? `Fundo compartilhado do fluxo. A base atual é “${continuousBackgroundSource==="gifts"?"Lista de presentes":"Convite"}”.`
+                : "Fundo e configurações da seção ativa. Ferramentas de precisão ficam recolhidas abaixo."}
             </div>
+
+            {editorPage==="invite-flow"&&inviteFlowState==="after"&&(
+              <div className={styles.flowInspectorCard}>
+                <label className={styles.inlineCheck}>
+                  <input
+                    type="checkbox"
+                    checked={continuousBackground}
+                    onChange={e=>updateInviteFlow({continuousBackground:e.target.checked})}
+                  />
+                  Fundo contínuo entre as duas seções
+                </label>
+                {continuousBackground&&(
+                  <div className={styles.grid2}>
+                    <label>
+                      Fundo-base
+                      <select
+                        value={continuousBackgroundSource}
+                        onChange={e=>updateInviteFlow({backgroundSource:e.target.value as "invite"|"gifts"})}
+                      >
+                        <option value="invite">Convite</option>
+                        <option value="gifts">Presentes</option>
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      className={styles.utilityButton}
+                      onClick={()=>switchInviteSection(continuousBackgroundSource)}
+                    >
+                      Editar seção-base
+                    </button>
+                  </div>
+                )}
+                <p className={styles.hint}>
+                  Desligado: cada seção usa seu próprio fundo. Ligado: o fundo escolhido atravessa as duas seções como uma única página.
+                </p>
+              </div>
+            )}
 
             <details open className={styles.screenSettings}>
               <summary>Fundo da seção <ChevronDown size={14}/></summary>
@@ -2156,8 +2294,8 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                     Cor de fundo
                     <input
                       type="color"
-                      value={screen.backgroundColor}
-                      onChange={e=>updateScreen({backgroundColor:e.target.value},true)}
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundColor}
+                      onChange={e=>updateBackgroundStyle({backgroundColor:e.target.value})}
                     />
                   </label>
                   <label>
@@ -2175,9 +2313,9 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                 <label>
                   Imagem de fundo
                   <input
-                    value={screen.backgroundImage||""}
+                    value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundImage||""}
                     placeholder="URL da imagem"
-                    onChange={e=>updateScreen({backgroundImage:e.target.value,useGradient:false},true)}
+                    onChange={e=>updateBackgroundStyle({backgroundImage:e.target.value,useGradient:false})}
                   />
                 </label>
 
@@ -2195,16 +2333,16 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                     Posição X
                     <input
                       type="number"
-                      value={screen.backgroundPositionX??50}
-                      onChange={e=>updateScreen({backgroundPositionX:Number(e.target.value)},true)}
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundPositionX??50}
+                      onChange={e=>updateBackgroundStyle({backgroundPositionX:Number(e.target.value)})}
                     />
                   </label>
                   <label>
                     Posição Y
                     <input
                       type="number"
-                      value={screen.backgroundPositionY??50}
-                      onChange={e=>updateScreen({backgroundPositionY:Number(e.target.value)},true)}
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundPositionY??50}
+                      onChange={e=>updateBackgroundStyle({backgroundPositionY:Number(e.target.value)})}
                     />
                   </label>
                 </div>
@@ -2212,29 +2350,29 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                 <label className={styles.inlineCheck}>
                   <input
                     type="checkbox"
-                    checked={!!screen.useGradient}
-                    onChange={e=>updateScreen({useGradient:e.target.checked},true)}
+                    checked={!!(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).useGradient}
+                    onChange={e=>updateBackgroundStyle({useGradient:e.target.checked})}
                   />
                   Usar gradiente
                 </label>
 
-                {screen.useGradient ? (
+                {(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).useGradient ? (
                   <>
                     <div className={styles.grid2}>
                       <label>
                         Cor 1
                         <input
                           type="color"
-                          value={screen.gradientFrom||"#ffffff"}
-                          onChange={e=>updateScreen({gradientFrom:e.target.value},true)}
+                          value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).gradientFrom||"#ffffff"}
+                          onChange={e=>updateBackgroundStyle({gradientFrom:e.target.value})}
                         />
                       </label>
                       <label>
                         Cor 2
                         <input
                           type="color"
-                          value={screen.gradientTo||"#eeeeee"}
-                          onChange={e=>updateScreen({gradientTo:e.target.value},true)}
+                          value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).gradientTo||"#eeeeee"}
+                          onChange={e=>updateBackgroundStyle({gradientTo:e.target.value})}
                         />
                       </label>
                     </div>
@@ -2242,8 +2380,8 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                       Ângulo
                       <input
                         type="number"
-                        value={screen.gradientAngle??180}
-                        onChange={e=>updateScreen({gradientAngle:Number(e.target.value)},true)}
+                        value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).gradientAngle??180}
+                        onChange={e=>updateBackgroundStyle({gradientAngle:Number(e.target.value)})}
                       />
                     </label>
                   </>
@@ -2254,8 +2392,8 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                     Overlay
                     <input
                       type="color"
-                      value={screen.backgroundOverlayColor||"#000000"}
-                      onChange={e=>updateScreen({backgroundOverlayColor:e.target.value},true)}
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundOverlayColor||"#000000"}
+                      onChange={e=>updateBackgroundStyle({backgroundOverlayColor:e.target.value})}
                     />
                   </label>
                   <label>
@@ -2265,9 +2403,36 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                       min="0"
                       max="1"
                       step=".05"
-                      value={screen.backgroundOverlayOpacity??0}
-                      onChange={e=>updateScreen({backgroundOverlayOpacity:Number(e.target.value)},true)}
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundOverlayOpacity??0}
+                      onChange={e=>updateBackgroundStyle({backgroundOverlayOpacity:Number(e.target.value)})}
                     />
+                  </label>
+                </div>
+
+                <div className={styles.grid2}>
+                  <label>
+                    Ajuste do fundo
+                    <select
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundSize||"cover"}
+                      onChange={e=>updateBackgroundStyle({backgroundSize:e.target.value as any})}
+                    >
+                      <option value="cover">Cobrir</option>
+                      <option value="contain">Conter</option>
+                      <option value="auto">Natural</option>
+                      <option value="100% 100%">Esticar</option>
+                    </select>
+                  </label>
+                  <label>
+                    Repetição
+                    <select
+                      value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).backgroundRepeat||"no-repeat"}
+                      onChange={e=>updateBackgroundStyle({backgroundRepeat:e.target.value as any})}
+                    >
+                      <option value="no-repeat">Não repetir</option>
+                      <option value="repeat">Repetir</option>
+                      <option value="repeat-x">Horizontal</option>
+                      <option value="repeat-y">Vertical</option>
+                    </select>
                   </label>
                 </div>
 
@@ -2278,8 +2443,8 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                     min="0"
                     max="1"
                     step=".05"
-                    value={screen.paperOpacity??.5}
-                    onChange={e=>updateScreen({paperOpacity:Number(e.target.value)},true)}
+                    value={(sharedFlowBackgroundActive?sharedBackgroundScreen:screen).paperOpacity??.5}
+                    onChange={e=>updateBackgroundStyle({paperOpacity:Number(e.target.value)})}
                   />
                 </label>
               </div>
