@@ -138,6 +138,28 @@ export async function POST(request: Request) {
     code: codeByNormalized.get(row.normalized_name as string) || null
   }));
 
+  const createdNormalized = (rows as any[]).map(row => String(row.normalized_name));
+  if (createdNormalized.length) {
+    await sql`
+      UPDATE guest_access_attempts a
+      SET
+        status = 'added',
+        guest_id = g.id,
+        resolved_at = now(),
+        resolved_by = ${session.admin_id},
+        updated_at = now()
+      FROM guests g
+      WHERE a.event_id = ${session.event_id}
+        AND a.status IN ('pending','denied')
+        AND g.event_id = ${session.event_id}
+        AND g.deleted_at IS NULL
+        AND g.normalized_name = a.normalized_name
+        AND a.normalized_name IN (
+          SELECT jsonb_array_elements_text(${JSON.stringify(createdNormalized)}::jsonb)
+        )
+    `;
+  }
+
   await adminLog({
     eventId: session.event_id,
     adminId: session.admin_id,
