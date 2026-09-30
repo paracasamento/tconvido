@@ -1,8 +1,7 @@
 import { requireInvite } from "@/lib/invite-session";
 import {
   getGuestReservationSummary,
-  getGuestSession,
-  getRsvpSubmissionSession
+  getGuestSession
 } from "@/lib/sessions";
 import { getPublicInvitePageData } from "@/lib/public-invite-data";
 import { displayDate } from "@/lib/event";
@@ -34,9 +33,8 @@ function dateParts(date: string) {
 export default async function InvitationPage() {
   const invite = await requireInvite("/convite");
 
-  const [pageData, submission, guestSession] = await Promise.all([
+  const [pageData, guestSession] = await Promise.all([
     getPublicInvitePageData("invite", invite.event_id),
-    getRsvpSubmissionSession(),
     getGuestSession(),
   ]);
   if (!pageData) return null;
