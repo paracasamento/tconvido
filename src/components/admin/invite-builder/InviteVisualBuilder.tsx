@@ -1816,8 +1816,6 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       <button onClick={redo} disabled={!future.length} title="Refazer"><Redo2 size={16}/></button>
       <span className={styles.sep}/>
       <label className={styles.viewportSelect}>Mobile <select value={previewWidth} onChange={e=>setPreviewWidth(Number(e.target.value))}><option value={360}>360</option><option value={390}>390</option><option value={393}>393</option><option value={414}>414</option><option value={430}>430</option></select></label>
-      {editorPage==="invite-flow"&&<label className={styles.viewportSelect}>Estado <select value={inviteFlowState} onChange={e=>changeInviteFlowState(e.target.value as InviteFlowState)}><option value="before">Antes do RSVP</option><option value="after">Após confirmação</option></select></label>}
-      {screenId==="rsvp"&&<label className={styles.viewportSelect}>Etapa <select value={rsvpPreviewState} onChange={e=>openRsvpScenario(e.target.value as RsvpPreviewState)}>{RSVP_PREVIEW_STATES.map(item=><option key={item.id} value={item.id}>{item.short}</option>)}</select></label>}
       <span className={styles.sep}/>
       <button onClick={()=>setGrid(v=>!v)} className={grid?styles.on:""} title="Grid"><Grid3X3 size={16}/></button>
       <button onClick={()=>setSnap(v=>!v)} className={snap?styles.on:""}>Snap</button>
