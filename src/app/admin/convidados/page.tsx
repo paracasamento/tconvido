@@ -98,7 +98,11 @@ export default async function AdminGuestsPage() {
       <section className="admin-list-section-v6">
         <div className="admin-list-toolbar-v6">
           <strong>Lista de convidados</strong>
-          <span>Toque em ••• para presença, senha ou remoção.</span>
+          <span>
+            {accessMode === "individual"
+              ? "Toque em ••• para presença, senha ou remoção."
+              : "Toque em ••• para gerenciar presença ou remover o convidado."}
+          </span>
         </div>
         <div className="admin-list-v6">
           {guests.map(guest => <AdminGuestRow key={guest.id} guest={guest} accessMode={accessMode} />)}
