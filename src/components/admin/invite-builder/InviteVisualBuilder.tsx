@@ -1947,6 +1947,25 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       </aside>
 
       <main className={styles.stage} onPointerMove={movePointer} onPointerUp={endPointer} onPointerCancel={endPointer}>
+        {editorPage==="invite-flow"&&inviteFlowState==="after"&&screenId==="gifts"&&(
+          <section className={styles.compositeSection}>
+            <button type="button" className={styles.compositeSectionLabel} onClick={()=>switchInviteSection("invite")}>
+              <span>Seção 1</span><strong>Convite</strong><small>Clique para editar</small>
+            </button>
+            <div className={styles.passiveCanvas} style={{width:CANVAS_W}}>
+              <InviteCanvas screen={inviteRuntimeScreen} vars={previewData.vars} slots={passiveInviteSlots} className="editor-live-invite"/>
+            </div>
+          </section>
+        )}
+
+        {editorPage==="invite-flow"&&(
+          <div className={styles.activeSectionBanner}>
+            <span>{screenId==="gifts"?"Seção 2":"Seção 1"}</span>
+            <strong>{screenId==="gifts"?"Lista de presentes":"Convite"}</strong>
+            <small>Editando agora</small>
+          </div>
+        )}
+
         <div className={styles.deviceLabel}>
           {CANVAS_W} × {CANVAS_H}
           {" • "}
@@ -1970,16 +1989,16 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           <div className={styles.zoomWrap} style={{width:CANVAS_W,transform:`scale(${zoom})`,transformOrigin:"top left",marginBottom:`${(zoom-1)*CANVAS_H}px`}}>
             <div
               ref={canvasRef}
-              data-builder-screen={screen.id}
+              data-builder-screen={displayScreen.id}
               className={styles.canvas}
-              style={{...screenBg,...canvasGridStyle,width:CANVAS_W,aspectRatio:`390 / ${screen.minHeight}`}}
+              style={{...screenBg,...canvasGridStyle,width:CANVAS_W,aspectRatio:`390 / ${displayScreen.minHeight}`}}
               onPointerMove={e=>{const point=canvasPointerPx(e);if(point)setCursorPx(point)}}
               onPointerLeave={()=>setCursorPx(null)}
               onPointerDown={()=>{setSelectedId(null);setSelectedPart(null)}}
             >
               <div className={styles.liveRenderer}>
                 <InviteCanvas
-                  screen={screen}
+                  screen={displayScreen}
                   vars={previewData.vars}
                   slots={editorSlots}
                   className="editor-live-invite"
@@ -2054,6 +2073,17 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
             </div>
           </div>
         </div>
+
+        {editorPage==="invite-flow"&&inviteFlowState==="after"&&screenId==="invite"&&(
+          <section className={styles.compositeSection}>
+            <button type="button" className={styles.compositeSectionLabel} onClick={()=>switchInviteSection("gifts")}>
+              <span>Seção 2</span><strong>Lista de presentes</strong><small>Clique para editar</small>
+            </button>
+            <div className={styles.passiveCanvas} style={{width:CANVAS_W}}>
+              <InviteCanvas screen={giftsPreviewScreen} vars={previewData.vars} slots={passiveGiftSlots} className="editor-live-invite"/>
+            </div>
+          </section>
+        )}
 
         <div className={styles.stageStatusBar}>
           <span>{CANVAS_W}×{CANVAS_H}</span>
