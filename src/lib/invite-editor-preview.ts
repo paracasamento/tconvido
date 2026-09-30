@@ -77,18 +77,7 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
       WHERE g.event_id = ${eventId}
         AND g.deleted_at IS NULL
         AND g.is_active = true
-      ORDER BY
-        CASE
-          WHEN EXISTS (
-            SELECT 1
-            FROM reservations r
-            WHERE r.gift_id = g.id
-              AND r.released_at IS NULL
-          ) THEN 1
-          ELSE 0
-        END,
-        g.sort_order,
-        g.created_at
+      ORDER BY g.sort_order, g.created_at
       LIMIT 8
     `,
   ]);
