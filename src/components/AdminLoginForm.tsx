@@ -7,11 +7,13 @@ import { readJsonResponse } from "@/lib/client-response";
 export function AdminLoginForm({
   redirectTo = "/admin",
   requiredRole,
-  endpoint = "/api/admin/login"
+  endpoint = "/api/admin/login",
+  allowUsername = false
 }: {
   redirectTo?: string;
   requiredRole?: "owner" | "admin";
   endpoint?: string;
+  allowUsername?: boolean;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -46,8 +48,14 @@ export function AdminLoginForm({
   return (
     <form className="form-card" onSubmit={submit}>
       <label>
-        <span>E-mail</span>
-        <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required />
+        <span>{allowUsername ? "Login" : "E-mail"}</span>
+        <input
+          type={allowUsername ? "text" : "email"}
+          autoComplete={allowUsername ? "username" : "email"}
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
       </label>
       <label>
         <span>Senha</span>
