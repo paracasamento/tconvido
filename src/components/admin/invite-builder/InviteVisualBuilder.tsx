@@ -1826,7 +1826,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       <span className={styles.zoom}>{Math.round(zoom*100)}%</span>
       <button onClick={()=>setZoom(z=>clamp(z+.1,.45,1.6))}><ZoomIn size={16}/></button>
       <span className={styles.sep}/>
-      <a className={styles.previewLink} href="/convite" target="_blank" rel="noreferrer"><ExternalLink size={15}/> Preview</a>
+      <a className={styles.previewLink} href={`/gestao/editor/preview?page=${editorPage}&state=${inviteFlowState}&rsvp=${rsvpPreviewState}`} target="_blank" rel="noreferrer"><ExternalLink size={15}/> Preview</a>
       <button onClick={resetScreen}><RotateCcw size={16}/> Restaurar seção</button>
       <button className={styles.save} onClick={save} disabled={saving}><Save size={16}/>{saving?"Salvando...":"Salvar"}</button>
 
