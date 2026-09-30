@@ -1,3 +1,4 @@
+import { UsersRound } from "lucide-react";
 import { AdminGuestCreate } from "@/components/AdminGuestCreate";
 import { AdminGuestRow } from "@/components/AdminGuestRow";
 import { RsvpSubmissionReview } from "@/components/admin/guests/RsvpSubmissionReview";
@@ -64,17 +65,26 @@ export default async function AdminGuestsPage() {
   const accessMode = eventRows[0]?.guest_access_mode || "individual";
 
   return (
-    <main className="admin-page admin-management-page-v6">
+    <main className="admin-page admin-management-page-v6 admin-guests-page-v8">
       <AdminPageHeader
         title="Convidados"
         description={`${guests.length} ${guests.length === 1 ? "pessoa na lista" : "pessoas na lista"}`}
         action={<AdminGuestCreate accessMode={accessMode} />}
       />
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10, marginBottom: 14 }}>
-        <div className="guest-state-card"><strong>{stats.confirmations}</strong><span>Confirmações</span></div>
-        <div className="guest-state-card"><strong>{stats.children}</strong><span>Filhos confirmados</span></div>
-        <div className="guest-state-card"><strong>{stats.review_count}</strong><span>Para verificar</span></div>
+      <section className="admin-guest-summary-v8" aria-label="Resumo de convidados">
+        <div>
+          <strong>{stats.confirmations}</strong>
+          <span>Confirmações</span>
+        </div>
+        <div>
+          <strong>{stats.children}</strong>
+          <span>Crianças</span>
+        </div>
+        <div>
+          <strong>{stats.review_count}</strong>
+          <span>Para revisar</span>
+        </div>
       </section>
 
       {submissions.length > 0 && (
@@ -98,15 +108,23 @@ export default async function AdminGuestsPage() {
       <section className="admin-list-section-v6">
         <div className="admin-list-toolbar-v6">
           <strong>Lista de convidados</strong>
-          <span>
-            {accessMode === "individual"
-              ? "Toque em ••• para presença, senha ou remoção."
-              : "Toque em ••• para gerenciar presença ou remover o convidado."}
-          </span>
+          {guests.length > 0 && (
+            <span>
+              {accessMode === "individual"
+                ? "Abra o menu de um convidado para gerenciar presença, senha ou remoção."
+                : "Abra o menu de um convidado para gerenciar presença ou remoção."}
+            </span>
+          )}
         </div>
         <div className="admin-list-v6">
           {guests.map(guest => <AdminGuestRow key={guest.id} guest={guest} accessMode={accessMode} />)}
-          {!guests.length && <div className="empty-state compact"><p>Nenhum convidado cadastrado ainda.</p></div>}
+          {!guests.length && (
+            <div className="admin-guests-empty-v8">
+              <span className="admin-guests-empty-v8__icon"><UsersRound size={20} /></span>
+              <strong>Sua lista está vazia</strong>
+              <p>Adicione os convidados para começar a acompanhar confirmações e presença.</p>
+            </div>
+          )}
         </div>
       </section>
     </main>
