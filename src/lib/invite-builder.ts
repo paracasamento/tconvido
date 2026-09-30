@@ -1733,15 +1733,20 @@ export function normalizeInviteVisualConfig(
   const rawInviteFlow = (config as InviteVisualConfig).inviteFlow;
 
   const rawAfterInvite = rawInviteFlow?.afterInviteScreen;
-  const afterInviteScreen = rawAfterInvite && Array.isArray(rawAfterInvite.elements)
-    ? {
-        ...structuredClone(screens.invite),
-        ...structuredClone(rawAfterInvite),
-        id: "invite" as const,
-        name: rawAfterInvite.name || "Convite após confirmação",
-        elements: structuredClone(rawAfterInvite.elements),
-      }
-    : undefined;
+  const afterInviteScreen: InviteScreen =
+    rawAfterInvite && Array.isArray(rawAfterInvite.elements)
+      ? {
+          ...structuredClone(screens.invite),
+          ...structuredClone(rawAfterInvite),
+          id: "invite",
+          name: rawAfterInvite.name || "Convite após confirmação",
+          elements: structuredClone(rawAfterInvite.elements),
+        }
+      : {
+          ...structuredClone(screens.invite),
+          id: "invite",
+          name: "Convite após confirmação",
+        };
 
   const inviteFlow: InviteFlowSettings = {
     continuousBackground: rawInviteFlow?.continuousBackground === true,
