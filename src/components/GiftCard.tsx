@@ -58,7 +58,7 @@ export function GiftCard({
     setModal({
       open: true,
       mode: "reserve",
-      title: \`Reservar “\${gift.name}”?\`,
+      title: `Reservar “${gift.name}”?`,
       description:
         "Ao confirmar, este presente ficará reservado em seu nome e não poderá ser escolhido por outro convidado.",
     });
@@ -82,7 +82,7 @@ export function GiftCard({
     setBusy(true);
 
     try {
-      const response = await fetch(\`/api/gifts/\${gift.id}/reserve\`, {
+      const response = await fetch(`/api/gifts/${gift.id}/reserve`, {
         method: "POST",
         headers: { accept: "application/json" },
       });
@@ -114,7 +114,7 @@ export function GiftCard({
             open: true,
             mode: "notice",
             title: currentName
-              ? \`Você já escolheu “\${currentName}”\`
+              ? `Você já escolheu “${currentName}”`
               : "Você já possui um presente escolhido",
             description:
               "Libere sua escolha atual antes de reservar outro presente.",
