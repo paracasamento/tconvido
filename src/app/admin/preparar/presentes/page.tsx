@@ -14,10 +14,25 @@ export default async function SetupGiftsPage() {
   const sql = db();
   const [giftsResult, setup, eventRows] = await Promise.all([
     sql`
-      SELECT id, name, description, image_path, status, sort_order
-      FROM admin_gift_overview
-      WHERE event_id = ${session.event_id}
-      ORDER BY sort_order, created_at
+      SELECT
+        o.id,
+        o.name,
+        o.description,
+        o.image_path,
+        o.status,
+        o.sort_order,
+        (
+          SELECT gu.name
+          FROM reservations r
+          JOIN guests gu ON gu.id = r.guest_id
+          WHERE r.gift_id = o.id
+            AND r.released_at IS NULL
+          ORDER BY r.created_at DESC
+          LIMIT 1
+        ) AS reserved_by_name
+      FROM admin_gift_overview o
+      WHERE o.event_id = ${session.event_id}
+      ORDER BY o.sort_order, o.created_at
     `,
     getAdminSetupState(session.event_id),
     sql`
@@ -67,7 +82,8 @@ export default async function SetupGiftsPage() {
                   name: gift.name,
                   description: gift.description,
                   image_url: gift.image_path ? imageMap.get(gift.image_path) || null : null,
-                  status: gift.status
+                  status: gift.status,
+                  reserved_by_name: gift.reserved_by_name || null
                 }}
               />
             ))}
