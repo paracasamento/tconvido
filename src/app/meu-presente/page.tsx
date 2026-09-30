@@ -29,7 +29,7 @@ export default async function MyGiftPage() {
         <section className="narrow-panel page-pad">
           <Monogram size={86} />
           <h1>Você ainda não escolheu um presente.</h1>
-          <Link className="button button--primary" href="/presentes">Ver lista de presentes</Link>
+          <Link className="button button--primary" href="/convite">Ver lista de presentes</Link>
         </section>
       </main>
     );
@@ -54,7 +54,7 @@ export default async function MyGiftPage() {
           {gift.description && <p>{gift.description}</p>}
         </div>
         <p className="muted">Esta é a sua escolha atual. Se mudar de ideia, você pode liberá-la para que outra pessoa escolha.</p>
-        <Link className="button button--soft" href="/presentes">Voltar para a lista</Link>
+        <Link className="button button--soft" href="/convite">Voltar para a lista</Link>
         <ReleaseGiftButton name={gift.name} label="Liberar escolha" />
       </section>
     </main>
