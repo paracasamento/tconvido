@@ -6,7 +6,6 @@ import { GiftCardView } from "@/components/invite/functional/GiftCardView";
 import { GuestActionModal } from "@/components/invite/functional/GuestActionModal";
 import type { InvitePartStyle } from "@/lib/invite-builder";
 
-export type GiftColorPreference={name:string;hex:string};
 export type GiftUi = {
   id: string;
   name: string;
@@ -19,7 +18,7 @@ type ModalState =
   | { open: false }
   | {
       open: true;
-      mode: "confirm" | "notice";
+      mode: "reserve" | "mine" | "notice";
       title: string;
       description?: string;
     };
@@ -30,14 +29,12 @@ export function GiftCard({
   preview = false,
   selectedPart = null,
   onSelectPart,
-  preferredColors=[],
 }: {
   gift: GiftUi;
   parts?: Record<string, InvitePartStyle>;
   preview?: boolean;
   selectedPart?: string | null;
   onSelectPart?: (id: string) => void;
-  preferredColors?: GiftColorPreference[];
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -60,10 +57,22 @@ export function GiftCard({
 
     setModal({
       open: true,
-      mode: "confirm",
-      title: `Reservar “${gift.name}”?`,
+      mode: "reserve",
+      title: \`Reservar “\${gift.name}”?\`,
       description:
         "Ao confirmar, este presente ficará reservado em seu nome e não poderá ser escolhido por outro convidado.",
+    });
+  }
+
+  function openMine() {
+    if (preview || busy || localStatus !== "reserved_by_me") return;
+
+    setModal({
+      open: true,
+      mode: "mine",
+      title: gift.name,
+      description:
+        "Este é o presente que você escolheu. Se mudar de ideia, pode liberá-lo para outra pessoa.",
     });
   }
 
@@ -73,7 +82,7 @@ export function GiftCard({
     setBusy(true);
 
     try {
-      const response = await fetch(`/api/gifts/${gift.id}/reserve`, {
+      const response = await fetch(\`/api/gifts/\${gift.id}/reserve\`, {
         method: "POST",
         headers: { accept: "application/json" },
       });
@@ -92,7 +101,6 @@ export function GiftCard({
             description:
               data.message || "Outro convidado escolheu este presente antes da sua confirmação.",
           });
-          router.refresh();
           return;
         }
 
@@ -106,10 +114,9 @@ export function GiftCard({
             open: true,
             mode: "notice",
             title: currentName
-              ? `Você já reservou “${currentName}”`
-              : "Você já possui um presente reservado",
+              ? \`Você já escolheu “\${currentName}”\`
+              : "Você já possui um presente escolhido",
             description:
-              data.message ||
               "Libere sua escolha atual antes de reservar outro presente.",
           });
           return;
@@ -139,17 +146,44 @@ export function GiftCard({
     }
   }
 
+  async function release() {
+    if (preview || busy || localStatus !== "reserved_by_me") return;
+
+    setBusy(true);
+
+    try {
+      const response = await fetch("/api/me/reservation", { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setModal({
+          open: true,
+          mode: "notice",
+          title: "Não foi possível liberar",
+          description: data.message || "Tente novamente em instantes.",
+        });
+        return;
+      }
+
+      setLocalStatus("available");
+      setModal({ open: false });
+      router.refresh();
+    } catch {
+      setModal({
+        open: true,
+        mode: "notice",
+        title: "Não foi possível liberar",
+        description: "Verifique sua conexão e tente novamente.",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function action() {
     if (preview || busy) return;
-
-    if (localStatus === "available") {
-      openReserveConfirmation();
-      return;
-    }
-
-    if (localStatus === "reserved_by_me") {
-      router.push("/meu-presente");
-    }
+    if (localStatus === "available") openReserveConfirmation();
+    if (localStatus === "reserved_by_me") openMine();
   }
 
   return (
@@ -162,21 +196,27 @@ export function GiftCard({
         onSelectPart={onSelectPart}
         busy={busy}
         error=""
-        buttonLabel={parts["gift-button-text"]?.text || parts["gift-button"]?.text}
         onAction={action}
-        preferredColors={preferredColors}
       />
 
       {!preview && modal.open ? (
         <GuestActionModal
           open
-          mode={modal.mode}
+          mode={modal.mode === "notice" ? "notice" : "confirm"}
           title={modal.title}
           description={modal.description}
-          confirmLabel="Reservar presente"
-          cancelLabel="Agora não"
+          kicker={modal.mode === "mine" ? "Sua escolha" : "Lista de presentes"}
+          confirmLabel={modal.mode === "mine" ? "Liberar escolha" : "Reservar presente"}
+          cancelLabel={modal.mode === "mine" ? "Manter escolha" : "Agora não"}
+          confirmTone={modal.mode === "mine" ? "danger" : "primary"}
           busy={busy}
-          onConfirm={modal.mode === "confirm" ? reserve : undefined}
+          onConfirm={
+            modal.mode === "reserve"
+              ? reserve
+              : modal.mode === "mine"
+                ? release
+                : undefined
+          }
           onClose={closeModal}
         />
       ) : null}
