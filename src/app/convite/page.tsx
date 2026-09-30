@@ -127,29 +127,7 @@ export default async function InvitationPage() {
           g.event_id = ${guestSession.event_id}
           AND g.deleted_at IS NULL
           AND g.is_active = true
-        ORDER BY
-          CASE
-            WHEN EXISTS (
-              SELECT 1
-              FROM reservations mine_order
-              WHERE
-                mine_order.event_id = ${guestSession.event_id}
-                AND mine_order.gift_id = g.id
-                AND mine_order.guest_id = ${guestSession.guest_id}
-                AND mine_order.released_at IS NULL
-            ) THEN 0
-            WHEN EXISTS (
-              SELECT 1
-              FROM reservations taken_order
-              WHERE
-                taken_order.event_id = ${guestSession.event_id}
-                AND taken_order.gift_id = g.id
-                AND taken_order.released_at IS NULL
-            ) THEN 2
-            ELSE 1
-          END,
-          g.sort_order,
-          g.created_at
+        ORDER BY g.sort_order, g.created_at
       `,
       getPublicInvitePageData("gifts", guestSession.event_id),
     ]);
