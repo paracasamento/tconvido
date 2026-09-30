@@ -1356,3 +1356,13 @@
     padding:18px 20px 48px;
   }
 }
+
+
+/* Final cleanup: technical metrics are available in the inspector, not the stage. */
+.stageStatusBar{display:none}
+.deviceLabel{
+  font-size:8.5px;
+  font-weight:700;
+  letter-spacing:.02em;
+  background:rgba(255,255,255,.78);
+}
