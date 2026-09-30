@@ -2280,8 +2280,8 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
               </div>
             </details>
 
-            <details open className={styles.screenSettings}>
-              <summary>Grid, régua e snap <ChevronDown size={14}/></summary>
+            <details className={styles.screenSettings}>
+              <summary>Ferramentas de precisão <ChevronDown size={14}/></summary>
               <div className={styles.panel}>
                 <div className={styles.grid2}>
                   <label className={styles.inlineCheck}>
@@ -2321,7 +2321,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
             </details>
 
             <details className={styles.screenSettings}>
-              <summary>Guias e colunas <ChevronDown size={14}/></summary>
+              <summary>Guias, colunas e safe area <ChevronDown size={14}/></summary>
               <div className={styles.panel}>
                 <div className={styles.grid2}>
                   <button className={styles.utilityButton} onClick={()=>addGuide("x")}>+ Guia vertical</button>
@@ -2657,15 +2657,28 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
                 <details open>
                   <summary>Posição e tamanho <ChevronDown size={14}/></summary>
                   <div className={styles.panel}>
+                    <div className={styles.unitSwitch}>
+                      <span>Unidade</span>
+                      <button type="button" className={unitMode==="px"?styles.unitActive:""} onClick={()=>setUnitMode("px")}>px</button>
+                      <button type="button" className={unitMode==="pct"?styles.unitActive:""} onClick={()=>setUnitMode("pct")}>%</button>
+                    </div>
+
                     <div className={styles.measureGrid}>
-                      <label>X %<input type="number" step=".001" value={selected.x} onChange={e=>mutateElement(selected.id,{x:Number(e.target.value)})}/></label>
-                      <label>X px<input type="number" step=".1" value={Number(pctToPxX(selected.x).toFixed(1))} onChange={e=>mutateElement(selected.id,{x:pxToPctX(Number(e.target.value))})}/></label>
-                      <label>Y %<input type="number" step=".001" value={selected.y} onChange={e=>mutateElement(selected.id,{y:Number(e.target.value)})}/></label>
-                      <label>Y px<input type="number" step=".1" value={Number(pctToPxY(selected.y).toFixed(1))} onChange={e=>mutateElement(selected.id,{y:pxToPctY(Number(e.target.value))})}/></label>
-                      <label>Largura %<input type="number" step=".001" value={selected.width} onChange={e=>mutateElement(selected.id,{width:Number(e.target.value)})}/></label>
-                      <label>Largura px<input type="number" step=".1" value={Number(pctToPxX(selected.width).toFixed(1))} onChange={e=>mutateElement(selected.id,{width:pxToPctX(Number(e.target.value))})}/></label>
-                      <label>Altura %<input type="number" step=".001" value={selected.height} onChange={e=>mutateElement(selected.id,{height:Number(e.target.value)})}/></label>
-                      <label>Altura px<input type="number" step=".1" value={Number(pctToPxY(selected.height).toFixed(1))} onChange={e=>mutateElement(selected.id,{height:pxToPctY(Number(e.target.value))})}/></label>
+                      {unitMode==="px" ? (
+                        <>
+                          <label>X<input type="number" step=".1" value={Number(pctToPxX(selected.x).toFixed(1))} onChange={e=>mutateElement(selected.id,{x:pxToPctX(Number(e.target.value))})}/></label>
+                          <label>Y<input type="number" step=".1" value={Number(pctToPxY(selected.y).toFixed(1))} onChange={e=>mutateElement(selected.id,{y:pxToPctY(Number(e.target.value))})}/></label>
+                          <label>Largura<input type="number" step=".1" value={Number(pctToPxX(selected.width).toFixed(1))} onChange={e=>mutateElement(selected.id,{width:pxToPctX(Number(e.target.value))})}/></label>
+                          <label>Altura<input type="number" step=".1" value={Number(pctToPxY(selected.height).toFixed(1))} onChange={e=>mutateElement(selected.id,{height:pxToPctY(Number(e.target.value))})}/></label>
+                        </>
+                      ) : (
+                        <>
+                          <label>X<input type="number" step=".001" value={selected.x} onChange={e=>mutateElement(selected.id,{x:Number(e.target.value)})}/></label>
+                          <label>Y<input type="number" step=".001" value={selected.y} onChange={e=>mutateElement(selected.id,{y:Number(e.target.value)})}/></label>
+                          <label>Largura<input type="number" step=".001" value={selected.width} onChange={e=>mutateElement(selected.id,{width:Number(e.target.value)})}/></label>
+                          <label>Altura<input type="number" step=".001" value={selected.height} onChange={e=>mutateElement(selected.id,{height:Number(e.target.value)})}/></label>
+                        </>
+                      )}
                     </div>
 
                     <div className={styles.alignActions}>
