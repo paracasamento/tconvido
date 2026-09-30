@@ -10,6 +10,8 @@ export function GuestActionModal({
   description,
   confirmLabel = "Confirmar",
   cancelLabel = "Cancelar",
+  kicker = "Lista de presentes",
+  confirmTone = "primary",
   busy = false,
   mode = "confirm",
   onConfirm,
@@ -20,6 +22,8 @@ export function GuestActionModal({
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  kicker?: string;
+  confirmTone?: "primary" | "danger";
   busy?: boolean;
   mode?: "confirm" | "notice";
   onConfirm?: () => void;
@@ -68,7 +72,7 @@ export function GuestActionModal({
         </button>
 
         <div className="guest-action-modal-copy">
-          <span className="guest-action-modal-kicker">Lista de presentes</span>
+          <span className="guest-action-modal-kicker">{kicker}</span>
           <h2 id="guest-action-modal-title">{title}</h2>
           {description ? <p>{description}</p> : null}
         </div>
@@ -86,7 +90,11 @@ export function GuestActionModal({
               </button>
               <button
                 type="button"
-                className="guest-action-modal-button guest-action-modal-button--primary"
+                className={`guest-action-modal-button ${
+                  confirmTone === "danger"
+                    ? "guest-action-modal-button--danger"
+                    : "guest-action-modal-button--primary"
+                }`}
                 onClick={onConfirm}
                 disabled={busy}
               >
