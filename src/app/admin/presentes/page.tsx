@@ -11,10 +11,25 @@ export default async function AdminGiftsPage() {
   const sql = db();
   const [giftsResult, eventRows] = await Promise.all([
     sql`
-      SELECT id, name, description, image_path, status, sort_order
-      FROM admin_gift_overview
-      WHERE event_id = ${session.event_id}
-      ORDER BY sort_order, created_at
+      SELECT
+        o.id,
+        o.name,
+        o.description,
+        o.image_path,
+        o.status,
+        o.sort_order,
+        (
+          SELECT gu.name
+          FROM reservations r
+          JOIN guests gu ON gu.id = r.guest_id
+          WHERE r.gift_id = o.id
+            AND r.released_at IS NULL
+          ORDER BY r.created_at DESC
+          LIMIT 1
+        ) AS reserved_by_name
+      FROM admin_gift_overview o
+      WHERE o.event_id = ${session.event_id}
+      ORDER BY o.sort_order, o.created_at
     `,
     sql`
       SELECT COALESCE(gift_color_preferences, '[]'::jsonb) AS gift_color_preferences
@@ -28,12 +43,15 @@ export default async function AdminGiftsPage() {
     ? eventRows[0].gift_color_preferences
     : [];
   const imageMap = await signGiftImages(giftRows.map(gift => gift.image_path || null));
+  const reservedCount = giftRows.filter(gift => gift.status === "reserved").length;
 
   return (
     <main className="admin-page admin-management-page-v6">
       <AdminPageHeader
         title="Presentes"
-        description={`${giftRows.length} ${giftRows.length === 1 ? "item na lista" : "itens na lista"}`}
+        description={
+          `${giftRows.length} ${giftRows.length === 1 ? "item" : "itens"} · ${reservedCount} ${reservedCount === 1 ? "reservado" : "reservados"}`
+        }
         action={<AdminGiftCreate />}
       />
 
@@ -53,7 +71,8 @@ export default async function AdminGiftsPage() {
                 name: gift.name,
                 description: gift.description,
                 image_url: gift.image_path ? imageMap.get(gift.image_path) || null : null,
-                status: gift.status
+                status: gift.status,
+                reserved_by_name: gift.reserved_by_name || null
               }}
             />
           ))}
