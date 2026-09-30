@@ -2730,3 +2730,64 @@
   from { opacity: 0; transform: translateY(10px) scale(.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+
+/* Preferências gerais de cor da lista de presentes */
+.gift-color-preferences-notice {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  display: grid;
+  gap: 9px;
+  border: 1px solid rgba(198,154,58,.28);
+  border-radius: 14px;
+  background: rgba(255,253,247,.88);
+  backdrop-filter: blur(6px);
+}
+
+.gift-color-preferences-notice__copy {
+  display: grid;
+  gap: 2px;
+}
+
+.gift-color-preferences-notice__copy strong {
+  color: #17368f;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+.gift-color-preferences-notice__copy span {
+  color: #77706b;
+  font-size: .62rem;
+  line-height: 1.35;
+}
+
+.gift-color-preferences-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+}
+
+.gift-color-preference {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.gift-color-preference i {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid rgba(21,28,52,.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+}
+
+.gift-color-preference small {
+  color: #4f4e57;
+  font-size: .6rem;
+  line-height: 1.2;
+}
