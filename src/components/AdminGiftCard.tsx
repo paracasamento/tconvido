@@ -16,7 +16,6 @@ type Gift = {
   description: string | null;
   image_url: string | null;
   status: "available" | "reserved";
-  reserved_by_name?: string | null;
 };
 
 export function AdminGiftCard({ gift }: { gift: Gift }) {
@@ -78,9 +77,7 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
         <div className="admin-gift-list-item__copy">
           <strong>{gift.name}</strong>
           {gift.status === "reserved" ? (
-            <span className="admin-gift-reserved-by">
-              Reservado{gift.reserved_by_name ? ` por ${gift.reserved_by_name}` : ""}
-            </span>
+            <span className="admin-gift-reserved-by">Reservado</span>
           ) : null}
           {gift.description && <small>{gift.description}</small>}
         </div>
@@ -91,9 +88,7 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
 
       <AdminSheet open={editing} title="Editar presente" description={
           gift.status === "reserved"
-            ? gift.reserved_by_name
-              ? `Reservado por ${gift.reserved_by_name}. Você pode atualizar os dados, mas não removê-lo.`
-              : "Este presente já foi escolhido. Você pode atualizar os dados, mas não removê-lo."
+            ? "Este presente já foi escolhido. Você pode atualizar os dados, mas não removê-lo."
             : "Atualize nome, descrição ou foto."
         } onClose={() => !busy && setEditing(false)}>
         <form className="admin-sheet-form" onSubmit={save}>
