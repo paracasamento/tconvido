@@ -18,6 +18,7 @@ import type { InviteElement, InvitePartStyle, InviteSavedLayout, InviteScreen, I
 
 import {
   normalizeInviteVisualConfig,
+  resolveInviteFlowScreen,
   resolveRsvpScenarioScreen,
   SLOT_PARTS,
   type RsvpScenarioId,
@@ -291,10 +292,12 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
   const screen=screenId==="rsvp"
     ? resolveRsvpScenarioScreen(config,rsvpPreviewState as RsvpScenarioId)
-    : config.screens[screenId];
+    : screenId==="invite"
+      ? resolveInviteFlowScreen(config,inviteFlowState)
+      : config.screens[screenId];
 
   const inviteRuntimeScreen = useMemo(() => {
-    const base = config.screens.invite;
+    const base = resolveInviteFlowScreen(config,inviteFlowState);
     const after = inviteFlowState === "after";
 
     return {
@@ -312,7 +315,7 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
           return element;
         }),
     };
-  }, [config.screens.invite, inviteFlowState]);
+  }, [config.screens.invite, config.inviteFlow?.afterInviteScreen, inviteFlowState]);
 
   const continuousBackground = config.inviteFlow?.continuousBackground === true;
   const continuousBackgroundSource =
@@ -653,6 +656,32 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       return;
     }
 
+    if(
+      screenId==="invite" &&
+      editorPage==="invite-flow" &&
+      inviteFlowState==="after"
+    ){
+      const currentAfter =
+        current.inviteFlow?.afterInviteScreen ||
+        structuredClone(current.screens.invite);
+
+      commit({
+        ...current,
+        inviteFlow:{
+          ...current.inviteFlow,
+          continuousBackground: current.inviteFlow?.continuousBackground === true,
+          backgroundSource: current.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+          afterInviteScreen:{
+            ...currentAfter,
+            ...patch,
+            id:"invite",
+            name:"Convite após confirmação",
+          },
+        },
+      },remember);
+      return;
+    }
+
     commit({
       ...current,
       screens:{
@@ -700,7 +729,9 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
   function updateElement(id:string,patch:Partial<InviteElement>,remember=false){
     const cur=screenId==="rsvp"
       ? resolveRsvpScenarioScreen(configRef.current,rsvpPreviewState as RsvpScenarioId)
-      : configRef.current.screens[screenId];
+      : screenId==="invite"
+        ? resolveInviteFlowScreen(configRef.current,inviteFlowState)
+        : configRef.current.screens[screenId];
     updateScreen({elements:cur.elements.map(e=>e.id===id?{...e,...patch}:e)},remember);
   }
 
@@ -1087,7 +1118,29 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
 
     const restored:any = deep(defaults.screens[screenId]);
     restored.deletedElementIds = [];
-    commit({...configRef.current,screens:{...configRef.current.screens,[screenId]:restored}},true);
+
+    if(
+      screenId==="invite" &&
+      editorPage==="invite-flow" &&
+      inviteFlowState==="after"
+    ){
+      commit({
+        ...configRef.current,
+        inviteFlow:{
+          ...configRef.current.inviteFlow,
+          continuousBackground: configRef.current.inviteFlow?.continuousBackground === true,
+          backgroundSource: configRef.current.inviteFlow?.backgroundSource === "gifts" ? "gifts" : "invite",
+          afterInviteScreen:{
+            ...restored,
+            id:"invite",
+            name:"Convite após confirmação",
+          },
+        },
+      },true);
+    }else{
+      commit({...configRef.current,screens:{...configRef.current.screens,[screenId]:restored}},true);
+    }
+
     setSelectedId(defaults.screens[screenId].elements[0]?.id||null);
     setSelectedPart(null);
   }
@@ -1471,36 +1524,28 @@ export function InviteVisualBuilder({initial,defaults,previewData}:{initial:Invi
       <div className={styles.propertyHeader}>
         <span>{label}</span>
         <div className={styles.propertyActions}>
-          <span
-            className={`${styles.propertyState} ${
-              state==="custom"
-                ? styles.propertyStateCustom
-                : state==="none"
-                  ? styles.propertyStateNone
-                  : styles.propertyStateInherited
-            }`}
-          >
-            {state==="custom" ? "Personalizado" : state==="none" ? "Nenhum" : "Herdar"}
-          </span>
-          {noneAction ? (
+          {noneAction && state!=="none" ? (
             <button
               type="button"
               className={styles.propertyNoneButton}
               onClick={noneAction}
               title="Remover valor visual"
+              aria-label={`Remover ${label}`}
             >
-              Nenhum
+              <EyeOff size={11}/>
             </button>
           ) : null}
-          <button
-            type="button"
-            className={styles.propertyResetButton}
-            onClick={onReset}
-            title="Restaurar valor padrão"
-            aria-label={`Restaurar ${label}`}
-          >
-            <RotateCcw size={12}/>
-          </button>
+          {state!=="inherit" ? (
+            <button
+              type="button"
+              className={styles.propertyResetButton}
+              onClick={onReset}
+              title="Restaurar valor padrão"
+              aria-label={`Restaurar ${label}`}
+            >
+              <RotateCcw size={12}/>
+            </button>
+          ) : null}
         </div>
       </div>
       {body}
