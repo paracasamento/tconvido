@@ -2465,3 +2465,71 @@
   font-weight:750;
   line-height:1.25;
 }
+
+
+/* Confirmações de presentes — identidade fora da gestão da lista */
+.admin-gifts-header-actions-v1{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.admin-gift-confirmations-link-v1{
+  min-height:44px;
+  padding:0 14px;
+  gap:6px;
+  white-space:nowrap;
+}
+.admin-gift-confirmations-v1{
+  display:grid;
+  gap:8px;
+}
+.admin-gift-confirmation-row-v1{
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border:1px solid var(--admin-line);
+  border-radius:16px;
+  background:#fff;
+}
+.admin-gift-confirmation-row-v1__icon{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  color:var(--admin-brand);
+  background:var(--admin-brand-soft);
+}
+.admin-gift-confirmation-row-v1__copy{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.admin-gift-confirmation-row-v1__copy strong{
+  color:var(--admin-text);
+  font-size:.84rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.admin-gift-confirmation-row-v1__copy span{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:var(--admin-muted);
+  font-size:.69rem;
+}
+@media (max-width:520px){
+  .admin-gifts-header-actions-v1{
+    gap:6px;
+  }
+  .admin-gift-confirmations-link-v1{
+    width:42px;
+    min-width:42px;
+    height:42px;
+    padding:0;
+    font-size:0;
+  }
+}
