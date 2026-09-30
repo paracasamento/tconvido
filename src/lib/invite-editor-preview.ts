@@ -6,6 +6,7 @@ import type { GiftUi } from "@/components/GiftCard";
 export type InviteEditorPreviewData = {
   vars: Record<string, string>;
   gifts: GiftUi[];
+  giftColorPreferences: Array<{ name: string; hex: string }>;
 };
 
 function compactTime(time: string) {
@@ -43,7 +44,8 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
         to_char(event_time, 'HH24:MI') AS event_time,
         venue,
         city,
-        maps_url
+        maps_url,
+        COALESCE(gift_color_preferences, '[]'::jsonb) AS gift_color_preferences
       FROM events
       WHERE id = ${eventId}
       LIMIT 1
@@ -112,6 +114,7 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
         guest_name: "Convidado",
       },
       gifts: [],
+      giftColorPreferences: [],
     };
   }
 
@@ -148,5 +151,13 @@ export async function getInviteEditorPreviewData(eventId: string): Promise<Invit
       guest_name: guestRows[0]?.name ? String(guestRows[0].name) : "Convidado",
     },
     gifts,
+    giftColorPreferences: Array.isArray(event.gift_color_preferences)
+      ? event.gift_color_preferences
+          .filter((item: any) => item && /^#[0-9a-fA-F]{6}$/.test(String(item.hex || "")))
+          .map((item: any) => ({
+            name: typeof item.name === "string" ? item.name : "",
+            hex: String(item.hex).toUpperCase(),
+          }))
+      : [],
   };
 }
