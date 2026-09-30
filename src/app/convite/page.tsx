@@ -59,6 +59,9 @@ export default async function InvitationPage() {
     elements: baseScreen.elements
       .filter(element => element.id !== "invite-gifts" || confirmed)
       .map(element => {
+        if (element.id === "invite-rsvp" && !confirmed) {
+          return { ...element, x: (100 - element.width) / 2 };
+        }
         if (element.id === "invite-rsvp" && confirmed) {
           return { ...element, text: "PRESENÇA CONFIRMADA", href: "/presenca" };
         }
