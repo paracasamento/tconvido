@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminGiftCard } from "@/components/AdminGiftCard";
 import { AdminGiftCreate } from "@/components/AdminGiftCreate";
 import { SetupStepShell } from "@/components/admin/setup/SetupStepShell";
+import { GiftColorPreferencesForm } from "@/components/admin/gifts/GiftColorPreferencesForm";
 import { getAdminSetupState } from "@/lib/admin-setup";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/sessions";
@@ -11,16 +12,25 @@ import { signGiftImages } from "@/lib/storage";
 export default async function SetupGiftsPage() {
   const session = await requireAdmin();
   const sql = db();
-  const [giftsResult, setup] = await Promise.all([
+  const [giftsResult, setup, eventRows] = await Promise.all([
     sql`
       SELECT id, name, description, image_path, status, sort_order
       FROM admin_gift_overview
       WHERE event_id = ${session.event_id}
       ORDER BY sort_order, created_at
     `,
-    getAdminSetupState(session.event_id)
+    getAdminSetupState(session.event_id),
+    sql`
+      SELECT COALESCE(gift_color_preferences, '[]'::jsonb) AS gift_color_preferences
+      FROM events
+      WHERE id = ${session.event_id}
+      LIMIT 1
+    `
   ]);
   const gifts = giftsResult as any[];
+  const colorPreferences = Array.isArray(eventRows[0]?.gift_color_preferences)
+    ? eventRows[0].gift_color_preferences
+    : [];
   if (setup.event.status !== "draft") redirect("/admin/presentes");
   const imageMap = await signGiftImages(gifts.map(gift => gift.image_path || null));
 
@@ -32,6 +42,8 @@ export default async function SetupGiftsPage() {
       steps={setup.steps}
       backHref="/admin/preparar/convidados"
     >
+      <GiftColorPreferencesForm initialColors={colorPreferences} />
+
       <section className="setup-action-card-v6">
         <div>
           <strong>{gifts.length ? `${gifts.length} ${gifts.length === 1 ? "presente" : "presentes"}` : "Nenhum presente ainda"}</strong>
