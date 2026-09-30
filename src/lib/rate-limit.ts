@@ -34,7 +34,7 @@ export async function recordFailure(
       ${eventId},
       ${action},
       'security',
-      jsonb_build_object('ip_hash', ${ipHash})
+      jsonb_build_object('ip_hash', ${ipHash}::text)
     )
   `;
 }
