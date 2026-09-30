@@ -71,7 +71,7 @@ export function GiftCardView({
       ? "Sua escolha"
       : gift.status === "reserved"
         ? "Presente já reservado"
-        : \`Escolher \${gift.name}\`;
+        : `Escolher ${gift.name}`;
 
   return (
     <article
