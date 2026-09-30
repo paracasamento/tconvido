@@ -8,10 +8,12 @@ export function ReleaseGiftButton({
   name,
   className = "button button--danger-ghost",
   label = "Liberar presente",
+  redirectTo = "/convite",
 }: {
   name: string;
   className?: string;
   label?: string;
+  redirectTo?: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -32,7 +34,7 @@ export function ReleaseGiftButton({
       }
 
       setOpen(false);
-      router.push("/presentes");
+      router.push(redirectTo);
       router.refresh();
     } catch {
       setError("Não foi possível liberar este presente agora.");
