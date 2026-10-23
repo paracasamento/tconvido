@@ -104,7 +104,7 @@ export function AdminGiftCard({ gift }: { gift: Gift }) {
             <input name="available_quantity" type="number" min={Math.max(1, gift.reserved_count)} max={999} defaultValue={gift.available_quantity} required />
           </label>
           <label className="admin-field"><span>Descrição</span><textarea name="description" defaultValue={gift.description || ""} rows={4} placeholder="Opcional" /></label>
-          <label className="admin-field admin-file-field"><span>Trocar foto (até 4 MB)</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+          <label className="admin-field admin-file-field"><span>Trocar foto (até 12 MB)</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/tiff,image/bmp,image/heic,image/heif,.heic,.heif,.tif,.tiff,.bmp" /></label>
           {gift.image_url && <label className="check-row"><input type="checkbox" name="remove_image" value="1" /><span>Remover foto atual</span></label>}
           {message && <p className="form-error">{message}</p>}
           <div className="admin-sheet-form__actions">
