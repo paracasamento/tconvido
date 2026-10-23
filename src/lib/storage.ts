@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 import { GIFT_IMAGE_MAX_BYTES, GIFT_IMAGE_MAX_MB } from "@/lib/upload-limits";
 
 const bucket = process.env.SUPABASE_BUCKET || "gift-images";
@@ -17,18 +18,42 @@ export async function uploadGiftImage(
   giftId: string,
   file: File
 ) {
-  const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
-  if (!allowed.has(file.type)) throw new Error("Formato de imagem não permitido.");
-  if (file.size > GIFT_IMAGE_MAX_BYTES) throw new Error(`A imagem deve ter até ${GIFT_IMAGE_MAX_MB} MB.`);
+  // Validate the actual decoded image, not the browser-provided MIME type.
+  // SVG/PDF and non-image files are deliberately excluded.
+  if (file.size > GIFT_IMAGE_MAX_BYTES) {
+    throw new Error(`A imagem deve ter até ${GIFT_IMAGE_MAX_MB} MB.`);
+  }
 
-  const ext =
-    file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-  const path = `events/${eventId}/gifts/${giftId}/${crypto.randomUUID()}.${ext}`;
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  let optimized: Buffer;
+  try {
+    const input = sharp(Buffer.from(await file.arrayBuffer()), {
+      limitInputPixels: 36_000_000,
+      failOn: "error"
+    });
+    const metadata = await input.metadata();
+    const supported = new Set(["jpeg", "png", "webp", "gif", "avif", "tiff", "heif", "bmp"]);
+    if (!metadata.format || !supported.has(metadata.format)) {
+      throw new Error("Formato de imagem não permitido.");
+    }
 
+    // Orientation is corrected, proportions preserved, and no enlargement is applied.
+    // Animated images are represented by their first frame.
+    optimized = await input
+      .rotate()
+      .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82, effort: 4 })
+      .toBuffer();
+  } catch (error) {
+    if (error instanceof Error && error.message === "Formato de imagem não permitido.") {
+      throw error;
+    }
+    throw new Error("Não foi possível converter a foto. Envie uma imagem JPG, PNG, WebP, AVIF, GIF ou TIFF válida.");
+  }
+
+  const path = `events/${eventId}/gifts/${giftId}/${crypto.randomUUID()}.webp`;
   const client = storageClient();
-  const { error } = await client.storage.from(bucket).upload(path, bytes, {
-    contentType: file.type,
+  const { error } = await client.storage.from(bucket).upload(path, optimized, {
+    contentType: "image/webp",
     upsert: false,
     cacheControl: "31536000"
   });
