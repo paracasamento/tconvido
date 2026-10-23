@@ -93,26 +93,59 @@ export function GiftCardView({
       <div
         {...bind("gift-media")}
         style={{
+          ...partStyleFromConfig(parts["gift-media"]),
           position: "relative",
           minWidth: 0,
           overflow: "hidden",
           flex: "0 0 auto",
-          ...partStyleFromConfig(parts["gift-media"]),
+          boxSizing: "border-box",
+          width: "100%",
+          height: "auto",
+          aspectRatio: "1 / 1",
+          padding: "10px 10px 0",
+          background: "transparent",
         }}
       >
-        {gift.image_url ? (
-          <Image
-            {...bind("gift-image")}
-            src={gift.image_url}
-            alt={gift.name}
-            fill
-            sizes="(max-width: 600px) 44vw, 220px"
-          />
-        ) : (
-          <div {...bind("gift-image")} aria-label="Presente sem foto cadastrada">
-            <Monogram size={46} />
-          </div>
-        )}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            overflow: "hidden",
+            borderRadius: 14,
+            background: "#f8f7f5",
+            border: "1px solid rgba(18, 48, 142, .09)",
+          }}
+        >
+          {gift.image_url ? (
+            <Image
+              {...bind("gift-image")}
+              src={gift.image_url}
+              alt={gift.name}
+              fill
+              sizes="(max-width: 600px) 44vw, 220px"
+              style={{
+                ...partStyleFromConfig(parts["gift-image"]),
+                objectFit: "contain",
+                objectPosition: "center",
+              }}
+            />
+          ) : (
+            <div
+              {...bind("gift-image")}
+              aria-label="Presente sem foto cadastrada"
+              style={{
+                ...partStyleFromConfig(parts["gift-image"]),
+                width: "100%",
+                height: "100%",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <Monogram size={46} />
+            </div>
+          )}
+        </div>
       </div>
 
       <div {...bind("gift-content")} style={{ minWidth: 0, ...partStyleFromConfig(parts["gift-content"]) }}>
